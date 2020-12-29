@@ -141,10 +141,22 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.textViewer.setCurrentFont(QtGui.QFont(self.font))
         self.textViewer.setText(text)
         self.textPageName.setText(self.textNames[index - 1])
+        self.textPageSpin.setValue(index)
         self.textViewer.setVisible(True)
 
+    def indexIncrement(self, step = 'f'):
+        if step == 'f':
+            self.textIndex = min(self.textIndex + 1, len(self.textLocs))
+        elif step == 'b':
+            self.textIndex = max(self.textIndex - 1, 1)
+        self.reload()
+        if self.textIndex == 1 or self.textIndex == len(self.textLocs):
+            return False
+        else:
+            return True
 
-    def search(self,sstr,side,regex):
+
+    def search(self,sstr,side,regex,loop):
         """
         Search the text files for a pattern. Move the cursor selection
         to the found match (if any).
@@ -154,6 +166,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         sstr: string, search pattern or regex
         side: string, 'f' or 'b', forwards or backwards
         regex: bool, True if regex search should be used
+        loop: bool, if True, loop pages by incrementing index.
         """
         self.lastSearch = sstr
         cursor = self.textViewer.textCursor()
@@ -183,6 +196,16 @@ class multiTextFrame(QtWidgets.QSplitter):
             cursor.setPosition(pos, QtGui.QTextCursor.MoveAnchor);
             cursor.setPosition(pos + matchlen, QtGui.QTextCursor.KeepAnchor);
             self.textViewer.setTextCursor(cursor)
+        else: # not found, increment file index en search again. Improve by doing this on file
+              # without loading it.
+            if loop:
+                check = self.indexIncrement(side)
+                if side == 'b':
+                    # If backwards, reset cursor to end of page.
+                    cursor.movePosition(QtGui.QTextCursor.End)
+                    self.textViewer.setTextCursor(cursor)
+                if check:
+                    self.search(sstr,side,regex,loop)
 
 
     def setTextList(self,pathList,reset=True):
@@ -527,7 +550,6 @@ class multiTextFrame(QtWidgets.QSplitter):
 
                 whFull = w.replace('\n','').rstrip()
                 wohFull = w.replace('-\n','').rstrip()
-                #print(wcount,wocount)
                 if useText:
                     wcount = wordDict[whyphen]
                     wocount = wordDict[wohyphen]
@@ -631,12 +653,16 @@ class SearchWindow(QtWidgets.QWidget):
         self.frame.addWidget(self.rightSearch, 0, 2)
         self.regex = QtWidgets.QCheckBox('regex')
         self.frame.addWidget(self.regex, 0, 3)
+        self.loopPages = QtWidgets.QCheckBox('Loop pages')
+        self.frame.addWidget(self.loopPages, 1, 0)
+
 
     def search(self,side):
         text = self.input.text()
         regex = bool(self.regex.checkState())
+        loop = bool(self.loopPages.checkState())
         if len(text) > 0:
-            self.father.search(text,side,regex)
+            self.father.search(text,side,regex,loop)
 
 
 class SearchDPWindow(QtWidgets.QWidget):
@@ -669,7 +695,6 @@ class SearchDPWindow(QtWidgets.QWidget):
 
 
     def search(self,text,side):
-        print(text)
         self.father.search(text,side,False)
 
 
