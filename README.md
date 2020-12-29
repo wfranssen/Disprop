@@ -5,6 +5,10 @@ Disprop
 
 Disprop (Distributed Proofreaders Processing) is a graphical tool for pre- and post-processing text files in the Distributed Proofreaders workflow.
 
+Status
+------
+Under construction (alpha).
+
 Requirements
 ------------
 
