@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   enable-background="new 0 0 512 512"
+   height="10mm"
+   version="1.1"
+   viewBox="0 0 37.795278 37.795278"
+   width="10mm"
+   xml:space="preserve"
+   id="svg5"
+   sodipodi:docname="search.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="/media/HDD/DP/Disprop/Icons/search.png"
+   inkscape:export-xdpi="162"
+   inkscape:export-ydpi="162"><metadata
+   id="metadata11"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
+   id="defs9" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1015"
+   id="namedview7"
+   showgrid="false"
+   inkscape:zoom="10.429825"
+   inkscape:cx="15.158936"
+   inkscape:cy="21.568653"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg5"
+   units="mm"
+   inkscape:document-rotation="0" /><rect
+   style="opacity:0.98999999;fill:#fefefe;fill-opacity:1;stroke:none;stroke-width:3.97494364;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:100;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+   id="rect4533"
+   width="37.795277"
+   height="37.795277"
+   x="-5.2564724e-07"
+   y="-5.2564724e-07" />
+
+
+<path
+   d="M 28.678018,14.829353 A 13.860607,13.860607 0 1 0 23.307033,25.761907 L 34.395519,36.850393 36.838451,34.407461 25.749965,23.318975 a 13.860607,13.860607 0 0 0 2.928053,-8.489622 z M 14.817411,25.224808 A 10.395456,10.395456 0 1 1 25.212866,14.829353 10.395456,10.395456 0 0 1 14.817411,25.224808 Z"
+   id="path839"
+   style="stroke-width:1.73258;fill:#0069f4;fill-opacity:1" /></svg>
