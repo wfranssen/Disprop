@@ -13,11 +13,16 @@ Disprop requires:
 
 And the following python packages are required:
 - [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download) >= 5.15.0
+- [Pillow](https://python-pillow.org/) >= 7.2.0-1
 
 Creators
 --------
 
 **Wouter Franssen**
+
+Thanks
+------
+Disprop is inspired by guiprep and guiguts by Stephen Schultze.
 
 License
 -------
