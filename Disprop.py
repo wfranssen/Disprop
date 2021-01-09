@@ -65,6 +65,10 @@ class MainProgram(QtWidgets.QMainWindow):
         # Settings
         self.initMenu()
         self.initToolbar()
+
+
+        self.lastLocation = os.path.expanduser('~')
+
         self.resize(1000, 1000)
         self.show()
 
@@ -81,6 +85,12 @@ class MainProgram(QtWidgets.QMainWindow):
     def initMenu(self):
         IconDirectory = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'Icons' + os.path.sep
         self.menubar = self.menuBar()
+
+        self.filemenu = QtWidgets.QMenu('File', self)
+        self.menubar.addMenu(self.filemenu)
+        self.openFileAct = self.filemenu.addAction('Add files', self.openFileDialog)
+        self.openFolderAct = self.filemenu.addAction('Add folder', self.openFolderDialog)
+
 
         self.imagemenu = QtWidgets.QMenu('Image viewer', self)
         self.menubar.addMenu(self.imagemenu)
@@ -191,15 +201,23 @@ class MainProgram(QtWidgets.QMainWindow):
         self.textViewer.openSearchDPWindow()
 
 
+    def openFileDialog(self):
+        fileList = QtWidgets.QFileDialog.getOpenFileNames(self, 'Open File', self.lastLocation)
+        if isinstance(fileList, tuple):
+            fileList = fileList[0]
+        if len(fileList) > 0:
+            self.loadFiles(fileList)
 
-    def dropEvent(self, event):
-        fileList = [url.toLocalFile() for url in event.mimeData().urls()]
-        # Unpack folder if filelist has a single folder. 
-        if len(fileList) == 1 and os.path.isdir(fileList[0]):
-            dir = fileList[0]
+    def openFolderDialog(self):
+        folder = QtWidgets.QFileDialog.getExistingDirectory(self, 'Open File', self.lastLocation)
+        if os.path.isdir(folder):
             # Get all files from this dir, and construct their absolute path.
-            fileList = [os.path.join(dir,x) for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x))]
+            fileList = [os.path.join(folder,x) for x in os.listdir(folder) if os.path.isfile(os.path.join(folder,x))]
+            if len(fileList) > 0:
+                self.loadFiles(fileList)
 
+    def loadFiles(self,fileList):
+        self.lastLocation = os.path.dirname(fileList[-1])  # Save used path
         #Get all text files, sorted alphabetically
         textList = sorted([x for x in fileList if x.endswith('.txt')])
 
@@ -211,6 +229,16 @@ class MainProgram(QtWidgets.QMainWindow):
             self.textViewer.setTextList(textList)
 
         self.menuCheck()
+
+    def dropEvent(self, event):
+        fileList = [url.toLocalFile() for url in event.mimeData().urls()]
+        # Unpack folder if filelist has a single folder. 
+        if len(fileList) == 1 and os.path.isdir(fileList[0]):
+            dir = fileList[0]
+            # Get all files from this dir, and construct their absolute path.
+            fileList = [os.path.join(dir,x) for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x))]
+        self.loadFiles(fileList)
+
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls:
