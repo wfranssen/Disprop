@@ -142,7 +142,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.textViewer.setText(text)
         self.textPageName.setText(self.textNames[index - 1])
         self.textPageSpin.setValue(index)
-        self.textViewer.setVisible(True)
+        self.father.editTabs.setVisible(True)
 
     def indexIncrement(self, step = 'f'):
         if step == 'f':
@@ -219,7 +219,7 @@ class multiTextFrame(QtWidgets.QSplitter):
             if reset:
                 self.changeTextIndex(1,save=False)
 
-            self.setVisible(True)
+            self.father.editTabs.setVisible(True)
 
     def saveText(self,index):
         with open(self.textLocs[index - 1],'w') as f:
@@ -234,7 +234,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.textLocs = None
         self.textIndex = None
         self.textPageName.setText('')
-        self.setVisible(False)
+        #self.setVisible(False)
         self.father.menuCheck()
 
     def dropEvent(self, event):

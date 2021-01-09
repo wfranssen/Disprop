@@ -64,7 +64,7 @@ class multiImageFrame(QtWidgets.QWidget):
         #image.invertPixels()
         self.imageViewer.setImage(image)
         self.pageName.setText(self.imageNames[index - 1])
-        self.imageViewer.setVisible(True)
+        self.father.viewTabs.setVisible(True)
 
     def setImageList(self,pathList,reset=True):
         if len(pathList) > 0:
@@ -77,7 +77,7 @@ class multiImageFrame(QtWidgets.QWidget):
             self.pageSpin.setEnabled(True)
             if reset:
                 self.changeIndex(1)
-            self.setVisible(True)
+            self.father.viewTabs.setVisible(True)
 
 
     def optimizePNG(self):
@@ -90,7 +90,7 @@ class multiImageFrame(QtWidgets.QWidget):
         self.imageLocs = None
         self.imageIndex = None
         self.pageName.setText('')
-        self.setVisible(False)
+        #self.setVisible(False)
 
     def dropEvent(self, event):
         self.father.dropEvent(event)

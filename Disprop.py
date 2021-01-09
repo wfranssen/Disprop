@@ -50,16 +50,28 @@ class MainProgram(QtWidgets.QMainWindow):
         self.main_widget.setHandleWidth(10)
         self.setCentralWidget(self.main_widget)
 
-
+        #viewers
+        self.viewTabs = QtWidgets.QTabWidget(self)
+        self.viewTabs.setMovable(False)
+        #self.tabs.tabBar().tabMoved.connect(self.moveWorkspace)
+        self.viewTabs.setTabsClosable(True)
+        #self.tabs.currentChanged.connect(self.changeMainWindow)
+        self.viewTabs.tabCloseRequested.connect(self.removeViewTab)
         self.imageViewer = ImgV.multiImageFrame(self)
-        self.main_widget.addWidget(self.imageViewer)
-        self.imageViewer.setVisible(False)
-        self.currentViewer = self.imageViewer
+        self.viewTabs.addTab(self.imageViewer,'Images')
+        self.main_widget.addWidget(self.viewTabs)
+        self.viewTabs.setVisible(False)
+        self.viewerList = [self.imageViewer]
+        self.currentViewerNum = 0
 
         #Text files
+        self.editTabs = QtWidgets.QTabWidget(self)
+        self.editTabs.setMovable(False)
+        self.editTabs.setTabsClosable(True)
         self.textViewer = TextV.multiTextFrame(self)
-        self.main_widget.addWidget(self.textViewer)
-        self.textViewer.setVisible(False)
+        self.editTabs.addTab(self.textViewer,'Texts')
+        self.main_widget.addWidget(self.editTabs)
+        self.editTabs.setVisible(False)
         self.currentEditor = self.textViewer
 
         # Settings
@@ -71,6 +83,18 @@ class MainProgram(QtWidgets.QMainWindow):
 
         self.resize(1000, 1000)
         self.show()
+
+    def removeViewTab(self,num):
+        self.viewerList[num].clearReader() 
+        self.viewTabs.removeTab(num)
+        del self.viewerList[num]
+        if num == self.currentViewerNum:
+            if num == len(self.viewerList):
+                self.currentViewerNum = num - 1
+        if len(self.viewerList) == 0:
+            self.viewTabs.hide()
+        self.menuCheck()
+
 
     def initToolbar(self):
         self.toolbar = self.addToolBar('Toolbar')
@@ -147,7 +171,7 @@ class MainProgram(QtWidgets.QMainWindow):
             for act in self.textViewActs:
                 act.setEnabled(False)
 
-        if self.currentViewer.numberOfFiles():
+        if  len(self.viewerList) > 0 and type(self.viewerList[self.currentViewerNum]) is ImgV.multiImageFrame:
             self.imagemenu.menuAction().setEnabled(True)
         else:
             self.imagemenu.menuAction().setEnabled(False)
