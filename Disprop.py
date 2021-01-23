@@ -77,12 +77,22 @@ class MainProgram(QtWidgets.QMainWindow):
         # Settings
         self.initMenu()
         self.initToolbar()
+        self.statusBar = QtWidgets.QStatusBar(self)
+        self.setStatusBar(self.statusBar)
 
 
         self.lastLocation = os.path.expanduser('~')
 
         self.resize(1000, 1000)
         self.show()
+
+
+    def dispMsg(self, msg, color='black'):
+        if color == 'red':
+            self.statusBar.setStyleSheet("QStatusBar{padding-left:8px;color:red;}")
+        else:
+            self.statusBar.setStyleSheet("QStatusBar{padding-left:8px;}")
+        self.statusBar.showMessage(msg, 10000)
 
     def removeViewTab(self,num):
         self.viewerList[num].clearReader() 

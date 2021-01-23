@@ -139,7 +139,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         with open(self.textLocs[index - 1],'r') as f:
             text = f.read()
         self.textViewer.setCurrentFont(QtGui.QFont(self.font))
-        self.textViewer.setText(text)
+        self.textViewer.setPlainText(text)
         self.textPageName.setText(self.textNames[index - 1])
         self.textPageSpin.setValue(index)
         self.father.editTabs.setVisible(True)
@@ -206,6 +206,8 @@ class multiTextFrame(QtWidgets.QSplitter):
                     self.textViewer.setTextCursor(cursor)
                 if check:
                     self.search(sstr,side,regex,loop)
+                else:
+                    self.father.dispMsg('TextEdit: Reached file limits')
 
 
     def setTextList(self,pathList,reset=True):
@@ -695,7 +697,7 @@ class SearchDPWindow(QtWidgets.QWidget):
 
 
     def search(self,text,side):
-        self.father.search(text,side,False)
+        self.father.search(text,side,False,loop=True)
 
 
 class GreekInputWindow(QtWidgets.QWidget):
