@@ -45,6 +45,18 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.addWidget(self.textWidget)
 
         self.textViewer = QtTextEdit(self)
+
+        #Force LTR text
+        #doc = self.textViewer.document()
+        #textOption = doc.defaultTextOption()
+        #textOption.setTextDirection(QtCore.Qt.LeftToRight)
+        #doc.setDefaultTextOption(textOption)
+        #self.textViewer.setDocument(doc)
+
+
+
+
+
         self.textFrame.addWidget(self.textViewer, 0, 0, 1, 11)
         self.textViewer.setAcceptRichText(False)
         self.textViewer.cursorPositionChanged.connect(self.cursorPositionChanged)
@@ -259,15 +271,14 @@ class multiTextFrame(QtWidgets.QSplitter):
         else:
             self.unicodeLabel.setText('')
 
-        #cursor = self.textViewer.textCursor()
-        #format = QtGui.QTextCharFormat()
-        #format.setLayoutDirection(QtCore.Qt.LeftToRight)
-        #cursor.setCharFormat(format)
-        #cursor.setBlockCharFormat(format)
-        #format2 = QtGui.QTextBlockFormat()
-        #format2.setLayoutDirection(QtCore.Qt.LeftToRight)
-        #cursor.setBlockFormat(format2)
-        #self.textViewer.setTextCursor(cursor)
+
+
+        #tc = self.textViewer.textCursor()
+        #tbf = tc.blockFormat()
+        #tbf.setLayoutDirection( QtCore.Qt.LeftToRight )
+        #tc.setBlockFormat(tbf)
+        #self.textViewer.setTextCursor(tc)
+
 
     def runRegexp(self,regexps,all=False):
         self.saveCurrent()

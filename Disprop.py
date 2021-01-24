@@ -497,8 +497,18 @@ class CleanOCRWindow(wc.ToolWindow):
     OKNAME = 'Run'
     RESIZABLE = False
 
+    PRESETS = ['English','Empty']
+
     def __init__(self, parent):
         super(CleanOCRWindow, self).__init__(parent)
+
+        self.grid.addWidget(QtWidgets.QLabel('Preset:'),0,0)
+
+        self.presetDrop = QtWidgets.QComboBox()
+        self.presetDrop.addItems(self.PRESETS)
+        self.presetDrop.currentIndexChanged.connect(self.setBools)
+        self.grid.addWidget(self.presetDrop,0,1)
+
         self.tabs = QtWidgets.QTabWidget(self)
 
         whiteWid = QtWidgets.QWidget(self)
@@ -515,7 +525,6 @@ class CleanOCRWindow(wc.ToolWindow):
         'multilines']
         for pos, name in enumerate(whitelabels):
             self.whiteChecks.append(QtWidgets.QCheckBox(name))
-            self.whiteChecks[-1].setChecked(True)
             whiteGrid.addWidget(self.whiteChecks[-1],pos,0)
         whiteGrid.setRowStretch(20,1)
         self.tabs.addTab(whiteWid, 'White spaces')
@@ -533,14 +542,12 @@ class CleanOCRWindow(wc.ToolWindow):
         'emdashSOL','underscoreconv','bracesconv']
         for pos, name in enumerate(labels):
             self.punctChecks.append(QtWidgets.QCheckBox(name))
-            self.punctChecks[-1].setChecked(True)
             punctGrid.addWidget(self.punctChecks[-1],pos + 1,0)
 
         punctGrid.addWidget(QtWidgets.QLabel('Remove white spaces after:'),20,0)
         punctAfterlabels = ['Opening brackets (']
         for pos, name in enumerate(punctAfterlabels):
             self.punctChecks.append(QtWidgets.QCheckBox(name))
-            self.punctChecks[-1].setChecked(True)
             punctGrid.addWidget(self.punctChecks[-1],pos + 21,0)
 
         punctGrid.addWidget(QtWidgets.QLabel('Other:'),40,0)
@@ -550,7 +557,6 @@ class CleanOCRWindow(wc.ToolWindow):
         'Join start of line -- with previous word','Convert _ to -','Convert {} to ()']
         for pos, name in enumerate(punctOtherlabels):
             self.punctChecks.append(QtWidgets.QCheckBox(name))
-            self.punctChecks[-1].setChecked(True)
             punctGrid.addWidget(self.punctChecks[-1],pos + 41,0)
         self.tabs.addTab(punctWid, '.,!?:;()—')
 
@@ -567,7 +573,6 @@ class CleanOCRWindow(wc.ToolWindow):
         self.quotesCodeList = ['curlyquotespace','stodquote','commatoquote','curlysingle','curlydouble']
         for pos, name in enumerate(quoteslabels):
             self.quotesChecks.append(QtWidgets.QCheckBox(name))
-            self.quotesChecks[-1].setChecked(True)
             quotesGrid.addWidget(self.quotesChecks[-1],pos,0)
         quotesGrid.setRowStretch(20,1)
         self.tabs.addTab(quotesWid, 'Quotes')
@@ -586,7 +591,6 @@ class CleanOCRWindow(wc.ToolWindow):
         'quilletoquote','lowsquote','lowdquote','ijligature','greekTPK','greekTheta']
         for pos, name in enumerate(lotelabels):
             self.loteChecks.append(QtWidgets.QCheckBox(name))
-            self.loteChecks[-1].setChecked(False)
             loteGrid.addWidget(self.loteChecks[-1],pos,0)
         loteGrid.setRowStretch(20,1)
         self.tabs.addTab(loteWid, 'LOTE')
@@ -594,8 +598,21 @@ class CleanOCRWindow(wc.ToolWindow):
         self.allChecks = self.whiteChecks + self.punctChecks + self.quotesChecks + self.loteChecks
         self.allCodeNames = self.whiteCodeList + self.punctCodeList + self.quotesCodeList + self.loteCodeList
 
-        self.grid.addWidget(self.tabs, 1, 0, 1, 3)
+        self.setBools()
+
+        self.grid.addWidget(self.tabs, 1, 0, 1, 2)
         self.father.textViewer.setReadOnly(True)
+
+    def setBools(self):
+        ind = self.presetDrop.currentIndex()
+        if ind == 0: # English
+            for elem in self.loteChecks:
+                elem.setChecked(False)
+            for elem in self.quotesChecks + self.punctChecks + self.whiteChecks:
+                elem.setChecked(True)
+        elif ind == 1: # Empty
+            for elem in self.loteChecks + self.quotesChecks + self.punctChecks + self.whiteChecks:
+                elem.setChecked(False)
 
 
     def closeEvent(self, *args):
