@@ -497,7 +497,7 @@ class CleanOCRWindow(wc.ToolWindow):
     OKNAME = 'Run'
     RESIZABLE = False
 
-    PRESETS = ['English','Empty']
+    PRESETS = ['English','Dutch','Empty']
 
     def __init__(self, parent):
         super(CleanOCRWindow, self).__init__(parent)
@@ -610,7 +610,14 @@ class CleanOCRWindow(wc.ToolWindow):
                 elem.setChecked(False)
             for elem in self.quotesChecks + self.punctChecks + self.whiteChecks:
                 elem.setChecked(True)
-        elif ind == 1: # Empty
+        if ind == 1: # Dutch
+            for elem in self.quotesChecks + self.punctChecks + self.whiteChecks:
+                elem.setChecked(True)
+            for elem in self.loteChecks: # first disable all LOTE
+                elem.setChecked(False)
+            for pos in [3,4,5]:
+                self.loteChecks[pos].setChecked(True)
+        elif ind == 2: # Empty
             for elem in self.loteChecks + self.quotesChecks + self.punctChecks + self.whiteChecks:
                 elem.setChecked(False)
 
