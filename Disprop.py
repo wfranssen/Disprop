@@ -215,7 +215,8 @@ class MainProgram(QtWidgets.QMainWindow):
         #self.textViewer.labelEmptyPage()
 
     def wordList(self):
-        self.textViewer.getWordList()
+        #self.textViewer.getWordList()
+        WordCountWindow(self)
 
     def textOpenGreek(self):
         self.textViewer.openGreekWidget()
@@ -407,6 +408,68 @@ class CharCountWindow(wc.ToolWindow):
     def applyFunc(self):
         self.father.textViewer.saveCurrent()
         self.upd()
+
+
+class WordCountWindow(wc.ToolWindow):
+    NAME = 'Word Count'
+    CANCELNAME = 'Close'
+    OKNAME = 'Update'
+    APPLYANDCLOSE = False
+    RESIZABLE = True
+
+    def __init__(self, parent):
+        super(WordCountWindow, self).__init__(parent)
+        self.grid.addWidget(QtWidgets.QLabel('Order:'), 0, 0)
+        self.orderType = QtWidgets.QComboBox()
+        self.orderType.addItems(['Alphabetically (Ascending)','Alphabetically (Descending)','Count (Ascending)',
+            'Count (Descending)'])
+        self.orderType.currentIndexChanged.connect(self.upd)
+        self.grid.addWidget(self.orderType,0,1)
+        self.table = QtWidgets.QTableWidget(1, 2)
+        self.table.setHorizontalHeaderLabels(['Word','Count'])
+        self.table.verticalHeader().hide()
+        self.upd()
+        self.grid.addWidget(self.table, 1, 0, 1, 6)
+        self.resize(900, 800)
+        #self.setGeometry(self.frameSize().width() - self.geometry().width(), self.frameSize().height(), 0, 0)
+
+    def upd(self):
+        ordType = self.orderType.currentIndex()
+        #counter = self.father.textViewer.getCharCount()
+        counter = self.father.textViewer.getWordList()
+        self.table.setRowCount(len(counter.keys()))
+
+        if ordType == 0: #Alphabetical
+            elements = sorted(counter.keys())
+        elif ordType == 1: #Alphabetical, inverted
+            elements = reversed(sorted(counter.keys()))
+        elif ordType == 2: #By count
+            vals = [counter[x] for x in counter.keys()]
+            elements = [x for _,x in sorted(zip(vals,counter.keys()))] #Sort keys by counter values
+        elif ordType == 3: #By count, inverted
+            vals = [counter[x] for x in counter.keys()]
+            elements = [x for _,x in reversed(sorted(zip(vals,counter.keys())))]
+
+        for pos, val in enumerate(elements):
+            word = val
+            count = str(counter[val])
+            item1 = QtWidgets.QTableWidgetItem(word)
+            item1.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table.setItem(pos, 0, item1)
+            item2 = QtWidgets.QTableWidgetItem(count)
+            item2.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table.setItem(pos, 1, item2)
+
+
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.resizeColumnsToContents()
+
+
+
+    def applyFunc(self):
+        self.father.textViewer.saveCurrent()
+        self.upd()
+
 
 
 
