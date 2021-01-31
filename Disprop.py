@@ -31,6 +31,7 @@ if __name__ == '__main__':
     splash = QtWidgets.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
     splash.show()
 
+import re
 import widgetClasses as wc
 import ImageViewer as ImgV
 import TextViewer as TextV
@@ -336,8 +337,8 @@ class CharCountWindow(wc.ToolWindow):
             'Count (Descending)'])
         self.orderType.currentIndexChanged.connect(self.upd)
         self.grid.addWidget(self.orderType,0,1)
-        self.table = QtWidgets.QTableWidget(1, 4)
-        self.table.setHorizontalHeaderLabels(['Character', 'Code point', 'Name','Count'])
+        self.table = QtWidgets.QTableWidget(1, 5)
+        self.table.setHorizontalHeaderLabels(['Character', 'Code point', 'Name','Count','Replace'])
         self.table.verticalHeader().hide()
         self.upd()
         self.grid.addWidget(self.table, 1, 0, 1, 6)
@@ -362,6 +363,7 @@ class CharCountWindow(wc.ToolWindow):
 
         for pos, val in enumerate(elements):
             char = val
+            charOr = char
             code = "{0:#0{1}x}".format(ord(val),6) #Hex value of character
             count = str(counter[val])
             if ord(val) == 10:
@@ -388,9 +390,19 @@ class CharCountWindow(wc.ToolWindow):
             item4 = QtWidgets.QTableWidgetItem(count)
             item4.setFlags(QtCore.Qt.ItemIsEnabled)
             self.table.setItem(pos, 3, item4)
+            item5 = QtWidgets.QPushButton('Replace')
+            item5.clicked.connect(lambda arg, c=charOr: self.replaceChar(c))
+            self.table.setCellWidget(pos, 4, item5)
 
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.resizeColumnsToContents()
+
+    def replaceChar(self,char):
+        text, ok = QtWidgets.QInputDialog.getText(self, 'Replace character by', 'Characters:')
+        if ok:
+            self.father.textViewer.runRegexp([[re.escape(char),re.escape(text)]],all=True)
+            self.upd()
+
 
     def applyFunc(self):
         self.father.textViewer.saveCurrent()

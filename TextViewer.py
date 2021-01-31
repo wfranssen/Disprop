@@ -54,9 +54,6 @@ class multiTextFrame(QtWidgets.QSplitter):
         #self.textViewer.setDocument(doc)
 
 
-
-
-
         self.textFrame.addWidget(self.textViewer, 0, 0, 1, 11)
         self.textViewer.setAcceptRichText(False)
         self.textViewer.cursorPositionChanged.connect(self.cursorPositionChanged)
