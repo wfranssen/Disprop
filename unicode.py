@@ -180,4 +180,5 @@ uniBlocks = [['Basic Latin',0x0000,0x007F],
 ['Small Form Variants',0xFE50,0xFE6F],
 ['Arabic Presentation Forms-B',0xFE70,0xFEFF],
 ['Halfwidth and Fullwidth Forms',0xFF00,0xFFEF],
-['Specials',0xFFF0,0xFFFF]]
+['Specials',0xFFF0,0xFFFF],
+['Cuneiform',0x12000,0x123FF]]

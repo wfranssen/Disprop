@@ -884,6 +884,10 @@ class GreekInputWindow(QtWidgets.QWidget):
 
     def buttonPush(self,char):
         self.father.insertStr(char)
+        # Reset modifiers
+        for button in self.modifierButtons:
+            button.setChecked(False)
+        self.refresh()
 
 
 
@@ -1087,7 +1091,7 @@ class UnicodeInputWindow(QtWidgets.QWidget):
         # troubles with the 22000 Chinese characters. Perhaps just make a selection
         # ourselves, as guiguts does?
 
-        self.uniBlocks = [x for x in unicode.uniBlocks if x[2]-x[1] < 1000]
+        self.uniBlocks = [x for x in unicode.uniBlocks if x[2]-x[1] < 2000]
         self.starts = []
         self.ends = []
         tmpnames = []

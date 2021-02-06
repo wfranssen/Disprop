@@ -460,10 +460,8 @@ class WordCountWindow(wc.ToolWindow):
             item2.setFlags(QtCore.Qt.ItemIsEnabled)
             self.table.setItem(pos, 1, item2)
 
-
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.resizeColumnsToContents()
-
 
 
     def applyFunc(self):
