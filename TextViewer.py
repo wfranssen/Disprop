@@ -268,8 +268,6 @@ class multiTextFrame(QtWidgets.QSplitter):
         else:
             self.unicodeLabel.setText('')
 
-
-
         #tc = self.textViewer.textCursor()
         #tbf = tc.blockFormat()
         #tbf.setLayoutDirection( QtCore.Qt.LeftToRight )
@@ -285,7 +283,6 @@ class multiTextFrame(QtWidgets.QSplitter):
             locations = [self.textLocs[index - 1]]
         else:
             locations = self.textLocs
-
 
         for loc in locations:
             with open(loc,'r') as f:
@@ -463,7 +460,9 @@ class multiTextFrame(QtWidgets.QSplitter):
             with open(loc,'r') as f:
                 text = text + f.read()
         
-        words = re.findall('\w+',text)
+        words = re.findall("[^\W_\d]+[-']?[^\W_\d]+",text)
+        # [^\W_\d] do not match non-alphanumerical, underscore or digits: i.e. only alphabetic chars
+        # We allow one hyphen or apostrofy inside the word. Not sure if this is good enough.
         outDict = col.Counter(words)
         return outDict
 
