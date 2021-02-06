@@ -1049,6 +1049,10 @@ class HebrewInputWindow(QtWidgets.QWidget):
 
     def buttonPush(self,char):
         self.father.insertStr(char)
+        # Reset modifiers
+        for button in self.modifierButtons:
+            button.setChecked(False)
+        self.refresh()
 
 
 
