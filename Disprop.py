@@ -438,17 +438,18 @@ class WordCountWindow(wc.ToolWindow):
         #counter = self.father.textViewer.getCharCount()
         counter = self.father.textViewer.getWordList()
         self.table.setRowCount(len(counter.keys()))
+        keys = counter.keys()
 
-        if ordType == 0: #Alphabetical
-            elements = sorted(counter.keys())
-        elif ordType == 1: #Alphabetical, inverted
-            elements = reversed(sorted(counter.keys()))
-        elif ordType == 2: #By count
-            vals = [counter[x] for x in counter.keys()]
-            elements = [x for _,x in sorted(zip(vals,counter.keys()))] #Sort keys by counter values
-        elif ordType == 3: #By count, inverted
-            vals = [counter[x] for x in counter.keys()]
-            elements = [x for _,x in reversed(sorted(zip(vals,counter.keys())))]
+        if ordType == 0 or ordType == 1: #Alphabetical
+            lwr = [x.lower() for x in keys]
+            elements = [x for _,x in sorted(zip(lwr,keys))]
+            if ordType == 1:
+                elements = reversed(elements)
+        elif ordType == 2 or ordType == 3: #By count
+            vals = [counter[x] for x in keys]
+            elements = [x for _,x in sorted(zip(vals,keys))] #Sort keys by counter values
+            if ordType == 3: #By count, inverted
+                elements = reversed(elements)
 
         for pos, val in enumerate(elements):
             word = val
