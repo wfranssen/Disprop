@@ -442,7 +442,12 @@ class WordCountWindow(wc.ToolWindow):
 
         if ordType == 0 or ordType == 1: #Alphabetical
             lwr = [x.lower() for x in keys]
-            elements = [x for _,x in sorted(zip(lwr,keys))]
+            # Remove diacritics for sorting
+            nfkd = [uni.normalize('NFKD', x) for x in lwr]
+            for pos, word in enumerate(nfkd):
+                nfkd[pos] = ''.join([c for c in word if not uni.combining(c)])
+
+            elements = [x for _,x in sorted(zip(nfkd,keys))]
             if ordType == 1:
                 elements = reversed(elements)
         elif ordType == 2 or ordType == 3: #By count
