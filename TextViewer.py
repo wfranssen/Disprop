@@ -460,9 +460,19 @@ class multiTextFrame(QtWidgets.QSplitter):
             with open(loc,'r') as f:
                 text = text + f.read()
         
-        words = re.findall("[^\W_\d]+[-']?[^\W_\d]+",text)
-        # [^\W_\d] do not match non-alphanumerical, underscore or digits: i.e. only alphabetic chars
-        # We allow one hyphen or apostrofy inside the word. Not sure if this is good enough.
+        text = re.sub('--+',' ',text) # remove long dashes
+        text = re.sub('</?[ibf]>','',text) # remove i/b/f tags
+        text = re.sub('</?sc>','',text) # remove <sc> tags
+        # remove non-alphanumerical chars
+        text = re.sub("[^\w,.'’-]",' ',text)
+        text = re.sub('[_]',' ',text) #Remove underscore that is in \w
+        words = text.split() #split based on white chars
+        # strip puntuation etc from left and right
+        words = [w.strip('\'\.,-') for w in words]
+
+        # remove empty string
+        words = [w for w in words if len(w) != 0]
+        
         outDict = col.Counter(words)
         return outDict
 
