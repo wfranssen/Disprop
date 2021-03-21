@@ -748,11 +748,6 @@ class CopticInputWindow(QtWidgets.QWidget):
 
         self.tabs.addTab(self.alphabet, 'Alphabet')
 
-        self.otherChars = QtWidgets.QWidget()
-        self.frameChars = QtWidgets.QGridLayout()
-        self.otherChars.setLayout(self.frameChars)
-        self.tabs.addTab(self.otherChars, 'Other')
-
         self.charDict = coptic.copticDict
 
         # PreviewLabel
@@ -779,32 +774,36 @@ class CopticInputWindow(QtWidgets.QWidget):
                 hexname = 'U+' + "{0:#0{1}x}".format(ord(char),6)[2:].upper()
                 self.buttons[-1].setToolTip(uni.name(char) + ' (' + hexname + ')')
                 self.frame.addWidget(self.buttons[-1],row,column + 1)
+                
+
+        self.demoticChars = QtWidgets.QWidget()
+        self.frameDemotic = QtWidgets.QGridLayout()
+        self.demoticChars.setLayout(self.frameDemotic)
+        self.tabs.addTab(self.demoticChars, 'Demotic Extensions')
 
 
         # Create the frame and buttons for the second tab.
         # PreviewLabel
-        #self.previewLabel2 = QtWidgets.QLabel('')
-        #self.previewLabel2.setAlignment(QtCore.Qt.AlignCenter)
-        #self.previewLabel2.setStyleSheet("border: 1px solid gray;") 
-        #self.previewLabel2.setFont(font) 
-        #self.previewLabel2.setMinimumWidth(60)
-        #self.previewLabel2.setMaximumWidth(60)
-        #self.frameChars.addWidget(self.previewLabel2,0,0,2,1)
-        #self.charButtons = []
-        #self.specialChar = greek.specialChars
-        #                     
-        #for row, lst in enumerate(self.specialChar):
-        #    for column, char in enumerate(lst):
-        #        self.charButtons.append(specialButton(char))
-        #        self.charButtons[-1].setMinimumWidth(16)
-        #        self.charButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-        #        self.charButtons[-1].setToolTip(uni.name(char))
+        self.previewLabel2 = QtWidgets.QLabel('')
+        self.previewLabel2.setAlignment(QtCore.Qt.AlignCenter)
+        self.previewLabel2.setStyleSheet("border: 1px solid gray;") 
+        self.previewLabel2.setFont(font) 
+        self.previewLabel2.setMinimumWidth(60)
+        self.previewLabel2.setMaximumWidth(60)
+        self.frameDemotic.addWidget(self.previewLabel2,0,0,2,1)
+        self.demoticButtons = []
+                             
+        for row, lst in enumerate([self.charDict['du'],self.charDict['dl']]):
+            for column, char in enumerate(lst):
+                self.demoticButtons.append(specialButton(char))
+                self.demoticButtons[-1].setMinimumWidth(16)
+                self.demoticButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
+                self.demoticButtons[-1].setToolTip(uni.name(char))
+                self.demoticButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
+                self.demoticButtons[-1].leave.connect(lambda char='': self.previewLabel2.setText(char))
+                self.frameDemotic.addWidget(self.demoticButtons[-1],row,column + 1)
 
-        #        self.charButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
-        #        self.charButtons[-1].leave.connect(lambda char='': self.previewLabel2.setText(char))
-        #        self.frameChars.addWidget(self.charButtons[-1],row,column + 1)
-
-        self.frameChars.setRowStretch(2,1)
+        self.frameDemotic.setRowStretch(2,1)
 
     def buttonPush(self,char):
         self.father.insertStr(char)

@@ -21,3 +21,5 @@
 copticDict = dict()
 copticDict['u'] = [x for x in 'ⲀⲂⲄⲆⲈⲊⲌⲎⲐⲒⲔⲖⲘⲚⲜⲞⲠⲢⲤⲦⲨⲪⲬⲮⲰ']
 copticDict['l'] = [x for x in 'ⲁⲃⲅⲇⲉⲋⲍⲏⲑⲓⲕⲗⲙⲛⲝⲟⲡⲣⲥⲧⲩⲫⲭⲯⲱ']
+copticDict['du'] = [x for x in 'ϢϤϦϨϪϬϮ']
+copticDict['dl'] = [x for x in 'ϣϥϧϩϫϭϯ']
