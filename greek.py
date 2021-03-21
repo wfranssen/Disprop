@@ -104,7 +104,7 @@ greekDiaDict['lCRI'] = makeGrkList('ᾇ',None,'ᾗ',None,None,None,None,'ᾧ')
 greekDiaDict['uCRI'] = makeGrkList('ᾏ',None,'ᾟ',None,None,None,None,'ᾯ')
 
 specialChars = [['Ϗ','Ϛ','Ϝ','Ϟ','Ϡ','Ȣ'],
-                ['ϗ','ϛ','ϝ','ϟ','ϡ','ȣ','᾽','·',';']]
+                ['ϗ','ϛ','ϝ','ϟ','ϡ','ȣ','᾽','·',';','͂','ͅ','̈́']]
 
 #========Transliteration=========
 # A list to replace Greek characters by the character without diacritics. Rough breathing is retained.
