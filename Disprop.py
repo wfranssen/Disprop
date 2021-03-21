@@ -151,11 +151,12 @@ class MainProgram(QtWidgets.QMainWindow):
         self.textmenupost = QtWidgets.QMenu('Text editor: post', self)
         self.menubar.addMenu(self.textmenupost)
         self.searchDPmarksAct = self.textmenupost.addAction('Find DP markers', self.textDPSearch)
+        self.tonos2OxiaAct = self.textmenupost.addAction('Convert Tonos to Oxia', self.textTonos2Oxia)
 
         self.textViewActs = [self.cleanOCRAct,self.charCountAct,self.wordListAct,
                             self.hyphenWordsAct,self.headerDelAct,self.footerDelAct,self.emptyPagesAct,
                             self.greekWidgetAct,self.hebrewWidgetAct,self.unicodeWidgetAct,
-                            self.searchWidgetAct,self.searchDPmarksAct]
+                            self.searchWidgetAct,self.searchDPmarksAct,self.tonos2OxiaAct]
 
         self.helpmenu = QtWidgets.QMenu('Help', self)
         self.menubar.addMenu(self.helpmenu)
@@ -236,6 +237,8 @@ class MainProgram(QtWidgets.QMainWindow):
     def textDPSearch(self):
         self.textViewer.openSearchDPWindow()
 
+    def textTonos2Oxia(self):
+        self.textViewer.greekTonos2Oxia()
 
     def openFileDialog(self):
         fileList = QtWidgets.QFileDialog.getOpenFileNames(self, 'Open File', self.lastLocation)

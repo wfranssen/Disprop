@@ -435,6 +435,10 @@ class multiTextFrame(QtWidgets.QSplitter):
 
         self.runRegexp(regexp,all=True)
 
+    def greekTonos2Oxia(self):
+        self.runRegexp(greek.GREEK_TONOS2OXIA,all=True)
+        
+
 
     def getCharCount(self,all=True):
         self.saveCurrent()
