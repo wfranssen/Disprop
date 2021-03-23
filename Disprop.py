@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Wouter Franssen
+# Copyright 2021 Wouter Franssen
 
 # This file is part of Disprop.
 #
