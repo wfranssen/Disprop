@@ -468,26 +468,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         for loc in locations:
             with open(loc,'r') as f:
                 text = text + f.read()
-        text = re.sub('-----File: .+\.\w+-+',' ',text) #remove file headers
-        text = re.sub('--+',' ',text) # remove long dashes
-        text = re.sub('\*\*+',' ',text) # remove multiple stars
-        text = re.sub('</?[ibf]>','',text) # remove i/b/f tags
-        text = re.sub('</?sc>','',text) # remove <sc> tags
-        text = re.sub('<tb>','',text) # remove <tb> tags
-        # remove non-alphanumerical chars
-        text = re.sub("[^\w,.'’\\-*]",' ',text)
-        text = re.sub('[_]',' ',text) #Remove underscore that is in \w
-        words = text.split() #split based on white chars
-        # strip puntuation etc from left and right
-        words = [w.strip('\'\.,') for w in words]
-        # strip some chars from the left only
-        words = [w.lstrip('-*') for w in words]
-
-        # remove empty string
-        words = [w for w in words if len(w) != 0]
-        
-        outDict = col.Counter(words)
-
+        outDict = getWordCount(text)
         return outDict
 
     def getLines(self,pos):
@@ -1211,3 +1192,24 @@ class UnicodeInputWindow(QtWidgets.QWidget):
     def buttonPush(self,char):
         self.father.insertStr(char)
 
+def getWordCount(text):
+    text = re.sub('-----File: .+\.\w+-+',' ',text) #remove file headers
+    text = re.sub('--+',' ',text) # remove long dashes
+    text = re.sub('\*\*+',' ',text) # remove multiple stars
+    text = re.sub('</?[ibf]>','',text) # remove i/b/f tags
+    text = re.sub('</?sc>','',text) # remove <sc> tags
+    text = re.sub('<tb>','',text) # remove <tb> tags
+    # remove non-alphanumerical chars
+    text = re.sub("[^\w,.'’\\-*]",' ',text)
+    text = re.sub('[_]',' ',text) #Remove underscore that is in \w
+    words = text.split() #split based on white chars
+    # strip puntuation etc from left and right
+    words = [w.strip('\'\.,') for w in words]
+    # strip some chars from the left only
+    words = [w.lstrip('-*') for w in words]
+
+    # remove empty string
+    words = [w for w in words if len(w) != 0]
+        
+    outDict = col.Counter(words)
+    return outDict
