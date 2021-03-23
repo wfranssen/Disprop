@@ -26,6 +26,7 @@ import collections as col
 import math
 import greek
 import coptic
+import widgetClasses as wc
 import unicode as unicode
 
 #QtGui.QFontDatabase.addApplicationFont(os.path.dirname(os.path.realpath(__file__)) + '/DPSansMono.ttf')
@@ -643,22 +644,7 @@ class QtTextEdit(QtWidgets.QTextEdit):
     def leaveEvent(self, QEvent):
         self.leave.emit()
 
-class specialButton(QtWidgets.QPushButton):
-    """ 
-    Button with enter and leave signals.
-    """
-    
-    enter = QtCore.pyqtSignal()
-    leave = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None):
-        super(specialButton, self).__init__(parent)
-
-    def enterEvent(self, QEvent):
-        self.enter.emit()
-
-    def leaveEvent(self, QEvent):
-        self.leave.emit()
 
 
 class SearchWindow(QtWidgets.QWidget):
@@ -730,84 +716,14 @@ class SearchDPWindow(QtWidgets.QWidget):
         self.father.search(text,side,False,loop=True)
 
 
-class CopticInputWindow(QtWidgets.QWidget):
+class CopticInputWindow(wc.CharInputWindow):
+    TITLE = '<b>Coptic input window</b>'
     def __init__(self,parent):
-        QtWidgets.QWidget.__init__(self)
-        self.father = parent
-        layout = QtWidgets.QGridLayout(self)
-        layout.setColumnStretch(1,1)
-        self.tabs = QtWidgets.QTabWidget(self)
-        layout.addWidget(QtWidgets.QLabel('<b>Coptic input window</b>'), 0, 0)
-        self.closeButton = QtWidgets.QPushButton('Close')
-        layout.addWidget(self.closeButton, 0, 2)
-        self.closeButton.clicked.connect(self.father.removeInputWindow)
-        layout.addWidget(self.tabs, 1, 0, 1, 3)
-        self.alphabet = QtWidgets.QWidget()
-        self.frame = QtWidgets.QGridLayout()
-        self.alphabet.setLayout(self.frame)
-
-        self.tabs.addTab(self.alphabet, 'Alphabet')
-
-        self.charDict = coptic.copticDict
-
-        # PreviewLabel
-        self.previewLabel = QtWidgets.QLabel('')
-        self.previewLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel.setStyleSheet("border: 1px solid gray;") 
-        font = QtGui.QFont()
-        font.setPointSize(30)
-        self.previewLabel.setFont(font) 
-        self.previewLabel.setMinimumWidth(60)
-        self.previewLabel.setMaximumWidth(60)
-        self.frame.addWidget(self.previewLabel,0,0,2,1)
-
- 	# Create all buttons
-        self.buttons = []
-        letters = [self.charDict['u'],self.charDict['l']]
-        for row, lst in enumerate(letters):
-            for column, char in enumerate(lst):
-                self.buttons.append(specialButton(char))
-                self.buttons[-1].setMinimumWidth(16)
-                self.buttons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-                self.buttons[-1].enter.connect(lambda char=char: self.previewLabel.setText(char))
-                self.buttons[-1].leave.connect(lambda char='': self.previewLabel.setText(char))
-                hexname = 'U+' + "{0:#0{1}x}".format(ord(char),6)[2:].upper()
-                self.buttons[-1].setToolTip(uni.name(char) + ' (' + hexname + ')')
-                self.frame.addWidget(self.buttons[-1],row,column + 1)
-                
-
-        self.demoticChars = QtWidgets.QWidget()
-        self.frameDemotic = QtWidgets.QGridLayout()
-        self.demoticChars.setLayout(self.frameDemotic)
-        self.tabs.addTab(self.demoticChars, 'Demotic Extensions')
-
-
-        # Create the frame and buttons for the second tab.
-        # PreviewLabel
-        self.previewLabel2 = QtWidgets.QLabel('')
-        self.previewLabel2.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel2.setStyleSheet("border: 1px solid gray;") 
-        self.previewLabel2.setFont(font) 
-        self.previewLabel2.setMinimumWidth(60)
-        self.previewLabel2.setMaximumWidth(60)
-        self.frameDemotic.addWidget(self.previewLabel2,0,0,2,1)
-        self.demoticButtons = []
-                             
-        for row, lst in enumerate([self.charDict['du'],self.charDict['dl']]):
-            for column, char in enumerate(lst):
-                self.demoticButtons.append(specialButton(char))
-                self.demoticButtons[-1].setMinimumWidth(16)
-                self.demoticButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-                self.demoticButtons[-1].setToolTip(uni.name(char))
-                self.demoticButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
-                self.demoticButtons[-1].leave.connect(lambda char='': self.previewLabel2.setText(char))
-                self.frameDemotic.addWidget(self.demoticButtons[-1],row,column + 1)
-
-        self.frameDemotic.setRowStretch(2,1)
-
-    def buttonPush(self,char):
-        self.father.insertStr(char)
-
+        super(CopticInputWindow,self).__init__(parent)
+        alChars = coptic.copticDict
+        self.addTab('Alphabet', [alChars['u'],alChars['l']])
+        self.addTab('Demotic Extensions', [alChars['du'],alChars['dl']])
+  
 
 class GreekInputWindow(QtWidgets.QWidget):
     def __init__(self,parent):
@@ -857,7 +773,7 @@ class GreekInputWindow(QtWidgets.QWidget):
         letters = [self.charDict['u'],self.charDict['l']]
         for row, lst in enumerate(letters):
             for column, char in enumerate(lst):
-                self.buttons.append(specialButton(char))
+                self.buttons.append(wc.specialButton(char))
                 self.buttons[-1].setMinimumWidth(16)
                 self.buttons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
                 self.buttons[-1].enter.connect(lambda char=char: self.previewLabel.setText(char))
@@ -880,7 +796,7 @@ class GreekInputWindow(QtWidgets.QWidget):
         modCharList = ['\u1FFD','\u0384','\u1FEF','\u1FC0','\u1FBF','\u1FFE','\u00A8',
         '\u0304','\u0306','\u037A']
         for pos, val in enumerate(names):
-            self.modifierButtons.append(specialButton(val))
+            self.modifierButtons.append(wc.specialButton(val))
             self.modifierButtons[-1].setCheckable(True)
             self.modifierButtons[-1].clicked.connect(self.refresh)
             self.modifierButtons[-1].setMinimumWidth(30)
@@ -1038,7 +954,7 @@ class HebrewInputWindow(QtWidgets.QWidget):
  	# Create all buttons
         self.buttons = []
         for column, char in enumerate(self.alphabet):
-            self.buttons.append(specialButton(char))
+            self.buttons.append(wc.specialButton(char))
             self.buttons[-1].setMinimumWidth(16)
             self.buttons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
             self.buttons[-1].enter.connect(lambda char=char: self.previewLabel.setText(char))
@@ -1055,7 +971,7 @@ class HebrewInputWindow(QtWidgets.QWidget):
         modFont = QtGui.QFont()
         modFont.setPointSize(20)
         for pos, val in enumerate(names):
-            self.modifierButtons.append(specialButton(val))
+            self.modifierButtons.append(wc.specialButton(val))
             self.modifierButtons[-1].setCheckable(True)
             self.modifierButtons[-1].clicked.connect(self.refresh)
             self.modifierButtons[-1].setMinimumWidth(30)
@@ -1094,7 +1010,7 @@ class HebrewInputWindow(QtWidgets.QWidget):
         self.specialChar = ['׳','״','־','׀','־','׆']
                              
         for column, char in enumerate(self.specialChar):
-            self.charButtons.append(specialButton(char))
+            self.charButtons.append(wc.specialButton(char))
             self.charButtons[-1].setMinimumWidth(16)
             self.charButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
             self.charButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
@@ -1237,7 +1153,7 @@ class UnicodeInputWindow(QtWidgets.QWidget):
         self.maxlength = max(self.lengths)
         self.buttons = []
         for pos in range(self.maxlength):
-            self.buttons.append(specialButton(''))
+            self.buttons.append(wc.specialButton(''))
             self.buttons[-1].setMinimumWidth(16)
             self.buttons[-1].clicked.connect(lambda arg, char='': self.buttonPush(char))
             self.buttons[-1].enter.connect(lambda char='': self.previewLabel.setText(char))

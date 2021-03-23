@@ -19,6 +19,7 @@
 # along with Disprop. If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtGui, QtCore, QtWidgets
+import unicodedata as uni
 
 class ToolWindow(QtWidgets.QWidget):
     """
@@ -97,3 +98,78 @@ class ToolWindow(QtWidgets.QWidget):
         self.deleteLater()
 
 
+
+class CharInputWindow(QtWidgets.QWidget):
+    """
+    Provides a general window for alphabetic inputs in the text editor.
+    """
+    TITLE = ''
+    def __init__(self,parent):
+        QtWidgets.QWidget.__init__(self)
+        self.father = parent
+        layout = QtWidgets.QGridLayout(self)
+        layout.setColumnStretch(1,1)
+        self.tabs = QtWidgets.QTabWidget(self)
+        layout.addWidget(QtWidgets.QLabel(self.TITLE), 0, 0)
+        self.closeButton = QtWidgets.QPushButton('Close')
+        layout.addWidget(self.closeButton, 0, 2)
+        self.closeButton.clicked.connect(self.father.removeInputWindow)
+        layout.addWidget(self.tabs, 1, 0, 1, 3)
+
+    def addTab(self,title, charLists):
+        """
+        Add a tab with name 'title'. It has a a number of rows equal to len(charLists).
+        Each row is populetd with the elements in each list inside charLists.
+        By default, a preview box is put on the left.
+        """
+        mainWidget = QtWidgets.QWidget()
+        frame = QtWidgets.QGridLayout()
+        mainWidget.setLayout(frame)
+
+        self.tabs.addTab(mainWidget, title)
+        # PreviewLabel
+        previewLabel = QtWidgets.QLabel('')
+        previewLabel.setAlignment(QtCore.Qt.AlignCenter)
+        previewLabel.setStyleSheet("border: 1px solid gray;") 
+        font = QtGui.QFont()
+        font.setPointSize(30)
+        previewLabel.setFont(font) 
+        previewLabel.setMinimumWidth(60)
+        previewLabel.setMaximumWidth(60)
+        frame.addWidget(previewLabel,0,0,2,1)
+
+ 	# Create all buttons
+        buttons = []
+        for row, lst in enumerate(charLists):
+            buttons.append([])
+            for column, char in enumerate(lst):
+                buttons[-1].append(specialButton(char))
+                buttons[-1][-1].setMinimumWidth(16)
+                buttons[-1][-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
+                buttons[-1][-1].enter.connect(lambda char=char: previewLabel.setText(char))
+                buttons[-1][-1].leave.connect(lambda char='': previewLabel.setText(char))
+                hexname = 'U+' + "{0:#0{1}x}".format(ord(char),6)[2:].upper()
+                buttons[-1][-1].setToolTip(uni.name(char) + ' (' + hexname + ')')
+                frame.addWidget(buttons[-1][-1],row,column + 1)
+
+        return [frame, buttons]
+
+    def buttonPush(self,char):
+        self.father.insertStr(char)
+
+class specialButton(QtWidgets.QPushButton):
+    """ 
+    Button with enter and leave signals.
+    """
+    
+    enter = QtCore.pyqtSignal()
+    leave = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(specialButton, self).__init__(parent)
+
+    def enterEvent(self, QEvent):
+        self.enter.emit()
+
+    def leaveEvent(self, QEvent):
+        self.leave.emit()
