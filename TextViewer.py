@@ -25,7 +25,7 @@ import re
 import collections as col
 import math
 import greek
-import coptic
+import glyphs
 import widgetClasses as wc
 import unicode as unicode
 
@@ -98,6 +98,9 @@ class multiTextFrame(QtWidgets.QSplitter):
 
     def openCopticWidget(self):
         self.openInputWidget(CopticInputWindow(self))
+
+    def openCyrillicWidget(self):
+        self.openInputWidget(CyrillicInputWindow(self))
 
     def openHebrewWidget(self):
         self.openInputWidget(HebrewInputWindow(self))
@@ -701,10 +704,19 @@ class CopticInputWindow(wc.CharInputWindow):
     TITLE = '<b>Coptic input window</b>'
     def __init__(self,parent):
         super(CopticInputWindow,self).__init__(parent)
-        alChars = coptic.copticDict
+        alChars = glyphs.copticDict
         self.addTab('Alphabet', [alChars['u'],alChars['l']])
         self.addTab('Demotic Extensions', [alChars['du'],alChars['dl']])
         self.addTab('Other', [alChars['other']])
+
+
+class CyrillicInputWindow(wc.CharInputWindow):
+    TITLE = '<b>Cyrillic input window</b>'
+    def __init__(self,parent):
+        super(CyrillicInputWindow,self).__init__(parent)
+        alChars = glyphs.cyrillicDict
+        self.addTab('Alphabet', [alChars['u'],alChars['l']])
+        self.addTab('Extensions', [alChars['eu'],alChars['el']])
   
 
 class GreekInputWindow(wc.CharInputWindow):

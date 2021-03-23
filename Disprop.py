@@ -144,6 +144,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.emptyPagesAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'labelblank.png'),'Label blank pages', self.labelEmptyPages)
         self.greekWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'greek.png'),'Greek input window', self.textOpenGreek)
         self.copticWidgetAct = self.textmenu.addAction('Coptic input window', self.textOpenCoptic)
+        self.cyrillicWidgetAct = self.textmenu.addAction('Cyrillic input window', self.textOpenCyrillic)
         self.hebrewWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'hebrew.png'),'Hebrew input window', self.textOpenHebrew)
         self.unicodeNormAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'uninorm.png'),'Unicode normalize', self.textUniNorm)
         self.unicodeWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'unicodeinput.png'),'Unicode input window', self.textOpenUnicode)
@@ -225,6 +226,9 @@ class MainProgram(QtWidgets.QMainWindow):
 
     def textOpenCoptic(self):
         self.textViewer.openCopticWidget()
+
+    def textOpenCyrillic(self):
+        self.textViewer.openCyrillicWidget()
 
     def textOpenHebrew(self):
         self.textViewer.openHebrewWidget()
