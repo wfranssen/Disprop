@@ -704,30 +704,19 @@ class CopticInputWindow(wc.CharInputWindow):
         alChars = coptic.copticDict
         self.addTab('Alphabet', [alChars['u'],alChars['l']])
         self.addTab('Demotic Extensions', [alChars['du'],alChars['dl']])
+        self.addTab('Other', [alChars['other']])
   
 
-class GreekInputWindow(QtWidgets.QWidget):
+class GreekInputWindow(wc.CharInputWindow):
+    TITLE = '<b>Greek input window</b>'
     def __init__(self,parent):
-        QtWidgets.QWidget.__init__(self)
-        self.father = parent
-        layout = QtWidgets.QGridLayout(self)
-        layout.setColumnStretch(1,1)
-        self.tabs = QtWidgets.QTabWidget(self)
-        layout.addWidget(QtWidgets.QLabel('<b>Greek input window</b>'), 0, 0)
-        self.closeButton = QtWidgets.QPushButton('Close')
-        layout.addWidget(self.closeButton, 0, 2)
-        self.closeButton.clicked.connect(self.father.removeInputWindow)
-        layout.addWidget(self.tabs, 1, 0, 1, 3)
+        super(GreekInputWindow,self).__init__(parent)
         self.alphabet = QtWidgets.QWidget()
         self.frame = QtWidgets.QGridLayout()
         self.alphabet.setLayout(self.frame)
 
         self.tabs.addTab(self.alphabet, 'Alphabet')
 
-        self.otherChars = QtWidgets.QWidget()
-        self.frameChars = QtWidgets.QGridLayout()
-        self.otherChars.setLayout(self.frameChars)
-        self.tabs.addTab(self.otherChars, 'Other')
 
 	#acute, tonos, grave, circum, smooth, rough, dia, macron, breve, iota
         # The labels we use for each modifier.
@@ -765,8 +754,6 @@ class GreekInputWindow(QtWidgets.QWidget):
                 else:
                     self.frame.addWidget(self.buttons[-1],row,column + 1)
 
-
-
         # Create the frame and buttons for the modifiers.
         self.diaframe = QtWidgets.QGridLayout()
         self.frame.addLayout(self.diaframe, 3, 0, 1, 26)
@@ -802,31 +789,10 @@ class GreekInputWindow(QtWidgets.QWidget):
 
         # Create the frame and buttons for the second tab.
         # PreviewLabel
-        self.previewLabel2 = QtWidgets.QLabel('')
-        self.previewLabel2.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel2.setStyleSheet("border: 1px solid gray;") 
-        self.previewLabel2.setFont(font) 
-        self.previewLabel2.setMinimumWidth(60)
-        self.previewLabel2.setMaximumWidth(60)
-        self.frameChars.addWidget(self.previewLabel2,0,0,2,1)
-        self.charButtons = []
-        self.specialChar = greek.specialChars
-                             
-        for row, lst in enumerate(self.specialChar):
-            for column, char in enumerate(lst):
-                self.charButtons.append(wc.specialButton(char))
-                self.charButtons[-1].setMinimumWidth(16)
-                self.charButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-                self.charButtons[-1].setToolTip(uni.name(char))
 
-                self.charButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
-                self.charButtons[-1].leave.connect(lambda char='': self.previewLabel2.setText(char))
-                self.frameChars.addWidget(self.charButtons[-1],row,column + 1)
-
-        self.frameChars.setRowStretch(2,1)
+        self.addTab('Others',greek.specialChars)
 
         self.refresh()
-
 
     def refresh(self):
         """
@@ -861,7 +827,6 @@ class GreekInputWindow(QtWidgets.QWidget):
                 for but in elem:
                     self.modifierButtons[but].setEnabled(False)
 
-
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]
         # Make key base on button states and the list of modifier keys. Join them to
@@ -879,9 +844,8 @@ class GreekInputWindow(QtWidgets.QWidget):
              upper = [None]*25 #If not in dict, no chars exist, so empty list
         return upper + lower
 
-
     def buttonPush(self,char):
-        self.father.insertStr(char)
+        super(GreekInputWindow,self).buttonPush(char)
         # Reset modifiers
         for button in self.modifierButtons:
             button.setChecked(False)
@@ -964,20 +928,6 @@ class HebrewInputWindow(QtWidgets.QWidget):
             self.modifierButtons[-1].leave.connect(lambda char='': self.previewLabel.setText(char))
             self.diaframe.addWidget(self.modifierButtons[-1],0,pos)
 
-        # Create list of lists holding the modifier buttons that need to be deactivated
-        # when a certain button is activated. This helps the user by disabling 'empty' options.
-        #self.modDeactive = []
-        #self.modDeactive.append([1,2,3,7,8])
-        #self.modDeactive.append([0,2,3,4,5,7,8,9])
-        #self.modDeactive.append([0,1,3,7,8])
-        #self.modDeactive.append([0,1,2,7,8])
-        #self.modDeactive.append([1,5,6,7,8])
-        #self.modDeactive.append([1,4,6,7,8])
-        #self.modDeactive.append([4,5,7,8,9])
-        #self.modDeactive.append([0,1,2,3,4,5,6,8,9])
-        #self.modDeactive.append([0,1,2,3,4,5,6,7,9])
-        #self.modDeactive.append([1,6,7,8])
-
         # Create the frame and buttons for the second tab.
         # PreviewLabel
         self.previewLabel2 = QtWidgets.QLabel('')
@@ -1001,7 +951,6 @@ class HebrewInputWindow(QtWidgets.QWidget):
         self.frameChars.setRowStretch(2,1)
 
         self.refresh()
-
 
     def refresh(self):
         """
@@ -1030,13 +979,6 @@ class HebrewInputWindow(QtWidgets.QWidget):
         #Turn all on to start with
         for button in self.modifierButtons:
             button.setEnabled(True)
-
-        ##Turn off all that is needed. Can be optimized by not deactivating multiple times.
-        #for pos, elem in enumerate(self.modDeactive):
-        #    if states[pos]:
-        #        for but in elem:
-        #            self.modifierButtons[but].setEnabled(False)
-
 
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]
