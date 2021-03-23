@@ -814,7 +814,7 @@ class GreekInputWindow(QtWidgets.QWidget):
                              
         for row, lst in enumerate(self.specialChar):
             for column, char in enumerate(lst):
-                self.charButtons.append(specialButton(char))
+                self.charButtons.append(wc.specialButton(char))
                 self.charButtons[-1].setMinimumWidth(16)
                 self.charButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
                 self.charButtons[-1].setToolTip(uni.name(char))
