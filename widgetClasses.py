@@ -124,6 +124,8 @@ class CharInputWindow(QtWidgets.QWidget):
         """
         mainWidget = QtWidgets.QWidget()
         frame = QtWidgets.QGridLayout()
+        frame.setHorizontalSpacing(0) #Keep vertical spacing as close as possible
+        frame.setVerticalSpacing(0) #Keep vertical spacing as close as possible
         mainWidget.setLayout(frame)
 
         self.tabs.addTab(mainWidget, title)
