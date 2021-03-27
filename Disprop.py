@@ -36,6 +36,7 @@ import widgetClasses as wc
 import ImageViewer as ImgV
 import TextViewer as TextV
 import unicodedata as uni
+import glyphs
 
 
 IMG_TYPES = ('.png','.bmp','.tif','.tiff','.jpg','.jpeg','.pbm','.pgm','.ppm','.xbm','.xpm')
@@ -349,8 +350,8 @@ class CharCountWindow(wc.ToolWindow):
             'Count (Descending)'])
         self.orderType.currentIndexChanged.connect(self.upd)
         self.grid.addWidget(self.orderType,0,1)
-        self.table = QtWidgets.QTableWidget(1, 5)
-        self.table.setHorizontalHeaderLabels(['Character', 'Code point', 'Name','Count','Replace'])
+        self.table = QtWidgets.QTableWidget(1, 6)
+        self.table.setHorizontalHeaderLabels(['Character', 'Code point', 'Name','Count','DP suite','Replace'])
         self.table.verticalHeader().hide()
         self.upd()
         self.grid.addWidget(self.table, 1, 0, 1, 6)
@@ -389,6 +390,12 @@ class CharCountWindow(wc.ToolWindow):
                     name = uni.name(val)
                 except exception:
                     name = '?'
+            # Get DP suite
+            suite = '-'
+            for key in glyphs.DPSuitesDict.keys():
+                if char in glyphs.DPSuitesDict[key]:
+                    suite = key
+                    break
 
             item1 = QtWidgets.QTableWidgetItem(char)
             item1.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -402,9 +409,12 @@ class CharCountWindow(wc.ToolWindow):
             item4 = QtWidgets.QTableWidgetItem(count)
             item4.setFlags(QtCore.Qt.ItemIsEnabled)
             self.table.setItem(pos, 3, item4)
-            item5 = QtWidgets.QPushButton('Replace')
-            item5.clicked.connect(lambda arg, c=charOr: self.replaceChar(c))
-            self.table.setCellWidget(pos, 4, item5)
+            item5 = QtWidgets.QTableWidgetItem(suite)
+            item5.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table.setItem(pos, 4, item5)
+            item6 = QtWidgets.QPushButton('Replace')
+            item6.clicked.connect(lambda arg, c=charOr: self.replaceChar(c))
+            self.table.setCellWidget(pos, 5, item6)
 
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.resizeColumnsToContents()
