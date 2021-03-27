@@ -572,6 +572,7 @@ class FooterDelWindow(HeaderDelWindow):
 
     def __init__(self, parent):
         super(FooterDelWindow, self).__init__(parent)
+        self.table.setHorizontalHeaderLabels(['Remove','Page #','Page name','Footer'])
 
     def getLines(self):
         return self.father.textViewer.getFooters()
