@@ -833,62 +833,20 @@ class GreekInputWindow(wc.CharInputWindow):
         self.refresh()
 
 
-
-class HebrewInputWindow(QtWidgets.QWidget):
+class HebrewInputWindow(wc.CharInputWindow):
+    TITLE = '<b>Hebrew input window</b>'
     def __init__(self,parent):
-        QtWidgets.QWidget.__init__(self)
-        self.father = parent
-        layout = QtWidgets.QGridLayout(self)
-        layout.setColumnStretch(1,1)
-        self.tabs = QtWidgets.QTabWidget(self)
-        layout.addWidget(QtWidgets.QLabel('<b>Hebrew input window</b>'), 0, 0)
-        self.closeButton = QtWidgets.QPushButton('Close')
-        layout.addWidget(self.closeButton, 0, 2)
-        self.closeButton.clicked.connect(self.father.removeInputWindow)
-        layout.addWidget(self.tabs, 1, 0, 1, 3)
-        self.alphabet = QtWidgets.QWidget()
-        self.frame = QtWidgets.QGridLayout()
-        self.alphabet.setLayout(self.frame)
+        super(HebrewInputWindow,self).__init__(parent)
 
-        self.tabs.addTab(self.alphabet, 'Alphabet')
-
-        self.otherChars = QtWidgets.QWidget()
-        self.frameChars = QtWidgets.QGridLayout()
-        self.otherChars.setLayout(self.frameChars)
-        self.tabs.addTab(self.otherChars, 'Other')
-
-
-        # PreviewLabel
-        self.previewLabel = QtWidgets.QLabel('')
-        self.previewLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel.setStyleSheet("border: 1px solid gray;") 
-        font = QtGui.QFont()
-        font.setPointSize(30)
-        self.previewLabel.setFont(font) 
-        self.previewLabel.setMinimumWidth(60)
-        self.previewLabel.setMaximumWidth(60)
-        self.frame.addWidget(self.previewLabel,0,0,2,1)
+        self.alphabet = ['אבגדהוזחטיךכלםמןנסעףפץצקרשת']
+        self.frame, self.buttons, self.previewLabel = self.addTab('Alphabet',self.alphabet)
+        self.buttons = self.buttons[0]
 
         #'Dagesh','Sin','Shin','Hiriq','Sheva','Tsere','Segol','Patah','Qamats','Qubuts','Hataf Segol',
         # 'Hataf Patah','Hataf Qamats','Rafe'
         self.diaModList = ['\u05BC','\u05C2','\u05C1','\u05B4', '\u05B0', '\u05B5', '\u05B6',
         '\u05B7', '\u05B8','\u05C7', '\u05BB', '\u05B1', '\u05B2', '\u05B3', '\u05BF']
 
-        self.alphabet = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','ך','כ','ל',
-        'ם','מ','ן','נ','ס','ע','ף','פ','ץ','צ','ק','ר','ש','ת']
-
- 	# Create all buttons
-        self.buttons = []
-        for column, char in enumerate(self.alphabet):
-            self.buttons.append(wc.specialButton(char))
-            self.buttons[-1].setMinimumWidth(16)
-            self.buttons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-            self.buttons[-1].enter.connect(lambda char=char: self.previewLabel.setText(char))
-            self.buttons[-1].leave.connect(lambda char='': self.previewLabel.setText(char))
-            self.frame.addWidget(self.buttons[-1],0,column + 1)
-
-
-        # Create the frame and buttons for the modifiers.
         self.diaframe = QtWidgets.QGridLayout()
         self.frame.addLayout(self.diaframe, 3, 0, 1, 28)
         names = self.diaModList
@@ -904,32 +862,12 @@ class HebrewInputWindow(QtWidgets.QWidget):
             self.modifierButtons[-1].setFont(modFont)
             hexname = 'U+' + "{0:#0{1}x}".format(ord(val),6)[2:].upper()
             self.modifierButtons[-1].setToolTip(uni.name(val) + ' (' + hexname + ')')
-
             self.modifierButtons[-1].enter.connect(lambda char=val: self.previewLabel.setText(char))
             self.modifierButtons[-1].leave.connect(lambda char='': self.previewLabel.setText(char))
             self.diaframe.addWidget(self.modifierButtons[-1],0,pos)
 
-        # Create the frame and buttons for the second tab.
-        # PreviewLabel
-        self.previewLabel2 = QtWidgets.QLabel('')
-        self.previewLabel2.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel2.setStyleSheet("border: 1px solid gray;") 
-        self.previewLabel2.setFont(font) 
-        self.previewLabel2.setMinimumWidth(60)
-        self.previewLabel2.setMaximumWidth(60)
-        self.frameChars.addWidget(self.previewLabel2,0,0,2,1)
-        self.charButtons = []
-        self.specialChar = ['׳','״','־','׀','־','׆']
-                             
-        for column, char in enumerate(self.specialChar):
-            self.charButtons.append(wc.specialButton(char))
-            self.charButtons[-1].setMinimumWidth(16)
-            self.charButtons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-            self.charButtons[-1].enter.connect(lambda char=char: self.previewLabel2.setText(char))
-            self.charButtons[-1].leave.connect(lambda char='': self.previewLabel2.setText(char))
-            self.charButtons[-1].setToolTip(uni.name(char))
-            self.frameChars.addWidget(self.charButtons[-1],0,column + 1)
-        self.frameChars.setRowStretch(2,1)
+        specialChar = ['׳״־׀־׆']
+        self.addTab('Others',specialChar)
 
         self.refresh()
 
@@ -965,11 +903,11 @@ class HebrewInputWindow(QtWidgets.QWidget):
         states = [x.isChecked() for x in self.modifierButtons]
         #Get combining characters
         combine = ''.join([x[1] for x in zip(states,self.diaModList) if x[0]])
-        out = [uni.normalize('NFKC',x + combine) for x in self.alphabet]
+        out = [uni.normalize('NFKC',x + combine) for x in self.alphabet[0]]
         return out
 
     def buttonPush(self,char):
-        self.father.insertStr(char)
+        super(HebrewInputWindow,self).buttonPush(char)
         # Reset modifiers
         for button in self.modifierButtons:
             button.setChecked(False)
