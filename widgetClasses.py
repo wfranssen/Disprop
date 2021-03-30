@@ -124,7 +124,7 @@ class CharInputWindow(QtWidgets.QWidget):
         """
         mainWidget = QtWidgets.QWidget()
         frame = QtWidgets.QGridLayout()
-        frame.setHorizontalSpacing(0) #Keep vertical spacing as close as possible
+        frame.setHorizontalSpacing(0) #Keep horizontal spacing as close as possible
         frame.setVerticalSpacing(0) #Keep vertical spacing as close as possible
         mainWidget.setLayout(frame)
 
@@ -154,7 +154,7 @@ class CharInputWindow(QtWidgets.QWidget):
                 buttons[-1][-1].setToolTip(uni.name(char) + ' (' + hexname + ')')
                 frame.addWidget(buttons[-1][-1],row,column + 1)
 
-        return [frame, buttons]
+        return frame, buttons, previewLabel
 
     def buttonPush(self,char):
         self.father.insertStr(char)

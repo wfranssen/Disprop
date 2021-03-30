@@ -723,12 +723,12 @@ class GreekInputWindow(wc.CharInputWindow):
     TITLE = '<b>Greek input window</b>'
     def __init__(self,parent):
         super(GreekInputWindow,self).__init__(parent)
-        self.alphabet = QtWidgets.QWidget()
-        self.frame = QtWidgets.QGridLayout()
-        self.alphabet.setLayout(self.frame)
 
-        self.tabs.addTab(self.alphabet, 'Alphabet')
-
+        self.charDict = greek.greekDiaDict
+        letters = [self.charDict['u'],self.charDict['l']]
+        self.frame, self.buttons, self.previewLabel = self.addTab('Alphabet',letters)
+        self.buttons[0][18].setVisible(False) # Turn off second Sigma
+        self.buttons = self.buttons[0] + self.buttons[1]
 
 	#acute, tonos, grave, circum, smooth, rough, dia, macron, breve, iota
         # The labels we use for each modifier.
@@ -737,34 +737,6 @@ class GreekInputWindow(wc.CharInputWindow):
         # Each combination of modifiers has a separate list. Each list is 25 positions, with None used to
         # signal that this character does not exist in unicode. We are very flexible in this way, and extra
         # modifiers (like var psi for example) can be easily included.
-        self.charDict = greek.greekDiaDict
-
-        # PreviewLabel
-        self.previewLabel = QtWidgets.QLabel('')
-        self.previewLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.previewLabel.setStyleSheet("border: 1px solid gray;") 
-        font = QtGui.QFont()
-        font.setPointSize(30)
-        self.previewLabel.setFont(font) 
-        self.previewLabel.setMinimumWidth(60)
-        self.previewLabel.setMaximumWidth(60)
-        self.frame.addWidget(self.previewLabel,0,0,2,1)
-
- 	# Create all buttons
-        self.buttons = []
-        letters = [self.charDict['u'],self.charDict['l']]
-        for row, lst in enumerate(letters):
-            for column, char in enumerate(lst):
-                self.buttons.append(wc.specialButton(char))
-                self.buttons[-1].setMinimumWidth(16)
-                self.buttons[-1].clicked.connect(lambda arg, char=char: self.buttonPush(char))
-                self.buttons[-1].enter.connect(lambda char=char: self.previewLabel.setText(char))
-                self.buttons[-1].leave.connect(lambda char='': self.previewLabel.setText(char))
-                # Lazy fix to not show capital end of word sigma
-                if row == 0 and column == 18:
-                    pass
-                else:
-                    self.frame.addWidget(self.buttons[-1],row,column + 1)
 
         # Create the frame and buttons for the modifiers.
         self.diaframe = QtWidgets.QGridLayout()
@@ -798,9 +770,6 @@ class GreekInputWindow(wc.CharInputWindow):
         self.modDeactive.append([0,1,2,3,4,5,6,8,9])
         self.modDeactive.append([0,1,2,3,4,5,6,7,9])
         self.modDeactive.append([1,6,7,8])
-
-        # Create the frame and buttons for the second tab.
-        # PreviewLabel
 
         self.addTab('Others',greek.specialChars)
 
