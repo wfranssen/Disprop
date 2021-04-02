@@ -44,10 +44,18 @@ class multiImageFrame(QtWidgets.QWidget):
         self.imageFrame.addWidget(self.pageSpin,1,1)
         self.pageName = QtWidgets.QLabel('')
         self.imageFrame.addWidget(self.pageName,1,2)
-        self.deleteButton = QtWidgets.QPushButton('X')
-        self.deleteButton.clicked.connect(self.clearReader)
-        self.imageFrame.addWidget(self.deleteButton,1,0)
+
+        self.zoomLevel = QtWidgets.QDoubleSpinBox(self)
+        self.zoomLevel.setMinimum(1)
+        self.zoomLevel.setMaximum(1000)
+        self.zoomLevel.setValue(100)
+        self.zoomLevel.valueChanged.connect(self.changeZoom)
+        self.imageFrame.addWidget(QtWidgets.QLabel('Zoom [%]:'),1,9)
+        self.imageFrame.addWidget(self.zoomLevel,1,10)
+
         self.imageFrame.setRowStretch(0,1)
+        self.imageFrame.setColumnStretch(8,1)
+
 
         self.imageLocs = None
         self.imageIndex = None
@@ -65,6 +73,9 @@ class multiImageFrame(QtWidgets.QWidget):
         self.imageViewer.setImage(image)
         self.pageName.setText(self.imageNames[index - 1])
         self.father.viewTabs.setVisible(True)
+
+    def changeZoom(self,value):
+        self.imageViewer.setZoomSpinbox(value)
 
     def setImageList(self,pathList,reset=True):
         if len(pathList) > 0:
@@ -122,6 +133,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
 
         # Zoom box coordinates as a list of fractional positions in the image.
         self.zoomBox = None
+        self.zoom = 1
 
 
     def setImage(self, image):
@@ -136,33 +148,68 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.updateScene()
 
 
-    def updateScene(self):
-        if self.currentPixmapItem is None:
-            return
-        if self.zoomBox is not None:
-            x,y,w,h = self.zoomBox
-            xzoom = 1/(w-x)
-            yzoom = 1/(h-y)
-            zoom = min(xzoom,yzoom)
-            if zoom > 4:
-                zmode = QtCore.Qt.FastTransformation
-            else:
-                zmode = QtCore.Qt.SmoothTransformation
 
-            width = int(self.geometry().width() * zoom)
-            height = int(self.geometry().height() * zoom)
-            Pixmap = self.pixmapBackup.scaled(width,height,transformMode=zmode,
-                    aspectRatioMode=QtCore.Qt.KeepAspectRatioByExpanding)
-            self.currentPixmapItem.setPixmap(Pixmap)
-            self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
-            x, y, w, h = self.frac2coords(x,y,w,h)
-            self.fitInView(x,y,w-x,h-y, QtCore.Qt.KeepAspectRatio)
+    def setZoomSpinbox(self,zoom):
+        self.zoom = zoom/100
+        self.updateScene()
+
+    def setZoom(self,zoom):
+        self.zoom = zoom
+        self.updateScene()
+
+    def scrollZoom(self,step):
+        self.zoom = self.zoom * 1.1**(step/120)
+        self.father.zoomLevel.setValue(self.zoom*100)
+        self.updateScene()
+
+    def fitPage(self):
+        #width = self.graphScene.sceneRect().width()
+        width = self.geometry().width()
+        height = self.geometry().height()
+        imageWidth = self.pixmapBackup.width()
+        imageHeight = self.pixmapBackup.height()
+        
+        self.setZoom(width/imageWidth)
+        self.father.zoomLevel.setValue(self.zoom*100)
+
+    def updateScene(self):
+        if self.zoom > 2: # If high zoom, don't do antialiasing
+            zmode = QtCore.Qt.FastTransformation
         else:
-            self.zoomBox = None  
-            Pixmap = self.pixmapBackup.scaledToHeight(self.geometry().height(),mode = QtCore.Qt.SmoothTransformation)
-            self.currentPixmapItem.setPixmap(Pixmap)
-            self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
-            self.fitInView(self.sceneRect(),QtCore.Qt.KeepAspectRatio)  
+            zmode = QtCore.Qt.SmoothTransformation
+        width = self.pixmapBackup.width() * self.zoom
+        Pixmap = self.pixmapBackup.scaledToWidth(width,mode=zmode)
+        self.currentPixmapItem.setPixmap(Pixmap)
+        self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
+
+
+    #def updateScene(self):
+    #    if self.currentPixmapItem is None:
+    #        return
+    #    if self.zoomBox is not None:
+    #        x,y,w,h = self.zoomBox
+    #        xzoom = 1/(w-x)
+    #        yzoom = 1/(h-y)
+    #        zoom = min(xzoom,yzoom)
+    #        if zoom > 4:
+    #            zmode = QtCore.Qt.FastTransformation
+    #        else:
+    #            zmode = QtCore.Qt.SmoothTransformation
+
+    #        width = int(self.geometry().width() * zoom)
+    #        height = int(self.geometry().height() * zoom)
+    #        Pixmap = self.pixmapBackup.scaled(width,height,transformMode=zmode,
+    #                aspectRatioMode=QtCore.Qt.KeepAspectRatioByExpanding)
+    #        self.currentPixmapItem.setPixmap(Pixmap)
+    #        self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
+    #        x, y, w, h = self.frac2coords(x,y,w,h)
+    #        self.fitInView(x,y,w-x,h-y, QtCore.Qt.KeepAspectRatio)
+    #    else:
+    #        self.zoomBox = None  
+    #        Pixmap = self.pixmapBackup.scaledToHeight(self.geometry().height(),mode = QtCore.Qt.SmoothTransformation)
+    #        self.currentPixmapItem.setPixmap(Pixmap)
+    #        self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
+    #        self.fitInView(self.sceneRect(),QtCore.Qt.KeepAspectRatio)  
 
     def resizeEvent(self, event):
         self.updateScene()
@@ -214,11 +261,17 @@ class ImageViewer(QtWidgets.QGraphicsView):
         return newc1.x(),newc1.y(),newc2.x(),newc2.y()
 
     def mouseDoubleClickEvent(self, event):
-        scenePos = self.mapToScene(event.pos())
         if event.button() == QtCore.Qt.RightButton:
+            self.fitPage()
             self.zoomBox = None
             self.updateScene()
         QtWidgets.QGraphicsView.mouseDoubleClickEvent(self, event)
+
+    def wheelEvent(self,event):
+        if event.modifiers() & QtCore.Qt.ControlModifier:
+            self.scrollZoom(event.angleDelta().y())
+        else:
+            QtWidgets.QGraphicsView.wheelEvent(self, event)
 
     def dropEvent(self, event):
         self.father.dropEvent(event)
