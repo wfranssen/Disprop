@@ -50,7 +50,10 @@ class multiImageFrame(QtWidgets.QWidget):
         self.zoomLevel.setMaximum(1000)
         self.zoomLevel.setValue(100)
         self.zoomLevel.editingFinished.connect(self.changeZoom)
-        self.imageFrame.addWidget(QtWidgets.QLabel('Zoom [%]:'),1,9)
+        self.zoomDrop = QtWidgets.QComboBox()
+        self.zoomDrop.addItems(['Zoom [%]:','Fit width','Fit page'])
+        self.zoomDrop.currentIndexChanged.connect(self.zoomTypeChanged)
+        self.imageFrame.addWidget(self.zoomDrop,1,9)
         self.imageFrame.addWidget(self.zoomLevel,1,10)
 
         self.imageFrame.setRowStretch(0,1)
@@ -77,6 +80,14 @@ class multiImageFrame(QtWidgets.QWidget):
     def changeZoom(self):
         value = self.zoomLevel.value()
         self.imageViewer.setZoomSpinbox(value)
+        self.zoomDrop.setCurrentIndex(0)
+
+    def zoomTypeChanged(self,index):
+        if index == 1:
+            self.imageViewer.fitWidth()
+        elif index == 2:
+            self.imageViewer.fitPage()
+
 
     def setImageList(self,pathList,reset=True):
         if len(pathList) > 0:
@@ -162,6 +173,14 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.zoom = self.zoom * 1.1**(step/120)
         self.father.zoomLevel.setValue(self.zoom*100)
         self.updateScene()
+        self.father.zoomDrop.setCurrentIndex(0)
+
+    def fitWidth(self):
+        width = self.viewport().width()
+        imageWidth = self.pixmapBackup.width()
+        zoom = width/imageWidth
+        self.setZoom(zoom)
+        self.father.zoomLevel.setValue(self.zoom*100)
 
     def fitPage(self):
         width = self.viewport().width()
