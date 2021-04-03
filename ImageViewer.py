@@ -49,7 +49,7 @@ class multiImageFrame(QtWidgets.QWidget):
         self.zoomLevel.setMinimum(1)
         self.zoomLevel.setMaximum(1000)
         self.zoomLevel.setValue(100)
-        self.zoomLevel.valueChanged.connect(self.changeZoom)
+        self.zoomLevel.editingFinished.connect(self.changeZoom)
         self.imageFrame.addWidget(QtWidgets.QLabel('Zoom [%]:'),1,9)
         self.imageFrame.addWidget(self.zoomLevel,1,10)
 
@@ -74,7 +74,8 @@ class multiImageFrame(QtWidgets.QWidget):
         self.pageName.setText(self.imageNames[index - 1])
         self.father.viewTabs.setVisible(True)
 
-    def changeZoom(self,value):
+    def changeZoom(self):
+        value = self.zoomLevel.value()
         self.imageViewer.setZoomSpinbox(value)
 
     def setImageList(self,pathList,reset=True):
@@ -163,13 +164,17 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.updateScene()
 
     def fitPage(self):
-        #width = self.graphScene.sceneRect().width()
-        width = self.geometry().width()
-        height = self.geometry().height()
+        width = self.viewport().width()
+        height = self.viewport().height()
         imageWidth = self.pixmapBackup.width()
         imageHeight = self.pixmapBackup.height()
+
+        widthZoom = width/imageWidth
+        heightZoom = height/imageHeight
         
-        self.setZoom(width/imageWidth)
+        zoom = min(widthZoom,heightZoom)
+        
+        self.setZoom(zoom)
         self.father.zoomLevel.setValue(self.zoom*100)
 
     def updateScene(self):
