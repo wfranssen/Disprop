@@ -159,8 +159,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.zoomBox = None
         self.updateScene()
 
-
-
     def setZoomSpinbox(self,zoom):
         self.zoom = zoom/100
         self.updateScene()
@@ -236,7 +234,11 @@ class ImageViewer(QtWidgets.QGraphicsView):
     #        self.fitInView(self.sceneRect(),QtCore.Qt.KeepAspectRatio)  
 
     def resizeEvent(self, event):
-        self.updateScene()
+        if self.father.zoomDrop.currentIndex() == 1:
+            self.fitWidth()
+        elif self.father.zoomDrop.currentIndex() == 2:
+            self.fitPage()
+
 
     def mousePressEvent(self, event):
         scenePos = self.mapToScene(event.pos())
