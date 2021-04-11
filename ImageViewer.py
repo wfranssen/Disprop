@@ -204,35 +204,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.currentPixmapItem.setPixmap(Pixmap)
         self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
 
-
-    #def updateScene(self):
-    #    if self.currentPixmapItem is None:
-    #        return
-    #    if self.zoomBox is not None:
-    #        x,y,w,h = self.zoomBox
-    #        xzoom = 1/(w-x)
-    #        yzoom = 1/(h-y)
-    #        zoom = min(xzoom,yzoom)
-    #        if zoom > 4:
-    #            zmode = QtCore.Qt.FastTransformation
-    #        else:
-    #            zmode = QtCore.Qt.SmoothTransformation
-
-    #        width = int(self.geometry().width() * zoom)
-    #        height = int(self.geometry().height() * zoom)
-    #        Pixmap = self.pixmapBackup.scaled(width,height,transformMode=zmode,
-    #                aspectRatioMode=QtCore.Qt.KeepAspectRatioByExpanding)
-    #        self.currentPixmapItem.setPixmap(Pixmap)
-    #        self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
-    #        x, y, w, h = self.frac2coords(x,y,w,h)
-    #        self.fitInView(x,y,w-x,h-y, QtCore.Qt.KeepAspectRatio)
-    #    else:
-    #        self.zoomBox = None  
-    #        Pixmap = self.pixmapBackup.scaledToHeight(self.geometry().height(),mode = QtCore.Qt.SmoothTransformation)
-    #        self.currentPixmapItem.setPixmap(Pixmap)
-    #        self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
-    #        self.fitInView(self.sceneRect(),QtCore.Qt.KeepAspectRatio)  
-
     def resizeEvent(self, event):
         if self.father.zoomDrop.currentIndex() == 1:
             self.fitWidth()
@@ -262,29 +233,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
                 self.updateScene()
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
 
-    def coords2frac(self,coords):
-        """
-        Converts a series of scene coordinates to fractions of the
-        full image width or height.
-        """
-        x = coords[0]/self.currentPixmapItem.pixmap().width()
-        w = coords[2]/self.currentPixmapItem.pixmap().width()
-        y = coords[1]/self.currentPixmapItem.pixmap().height()
-        h = coords[3]/self.currentPixmapItem.pixmap().height()
-        return [x,y,w,h]
-
-    def frac2coords(self,x,y,w,h):
-        """
-        Converts fractions to pixel positions (scene coords).
-        """
-        x *= self.currentPixmapItem.pixmap().width()
-        y *= self.currentPixmapItem.pixmap().height()
-        w *= self.currentPixmapItem.pixmap().width()
-        h *= self.currentPixmapItem.pixmap().height()
-        newc1 = self.mapToScene(int(x),int(y))
-        newc2 = self.mapToScene(int(w),int(h))
-        return newc1.x(),newc1.y(),newc2.x(),newc2.y()
-
     def mouseDoubleClickEvent(self, event):
         if event.button() == QtCore.Qt.RightButton:
             self.father.zoomDrop.setCurrentIndex(2)
@@ -295,7 +243,24 @@ class ImageViewer(QtWidgets.QGraphicsView):
 
     def wheelEvent(self,event):
         if event.modifiers() & QtCore.Qt.ControlModifier:
-            self.scrollZoom(event.angleDelta().y())
+            """
+            Update the view to new zoom. Scroll the area to keep the same
+            absolute image position under the cursor.
+            """
+            x, y = event.pos().x(), event.pos().y() # The cursor pos in the frame
+            scenePos = self.mapToScene(x,y)
+            oldx = scenePos.x()/self.currentPixmapItem.pixmap().width()
+            oldy = scenePos.y()/self.currentPixmapItem.pixmap().height()
+            # Now zoom to new zoom setting.
+            self.scrollZoom(event.angleDelta().y() + event.angleDelta().x())
+            scenePosNew = self.mapToScene(x,y)
+            newx = scenePosNew.x()
+            newy = scenePosNew.y()
+            xscroll = oldx * self.currentPixmapItem.pixmap().width() - newx 
+            yscroll = oldy * self.currentPixmapItem.pixmap().height() - newy
+            # Scroll with these values
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + xscroll)
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + yscroll)
         else:
             QtWidgets.QGraphicsView.wheelEvent(self, event)
 
