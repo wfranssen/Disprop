@@ -239,7 +239,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
         elif self.father.zoomDrop.currentIndex() == 2:
             self.fitPage()
 
-
     def mousePressEvent(self, event):
         scenePos = self.mapToScene(event.pos())
         if event.button() == QtCore.Qt.LeftButton:
@@ -288,6 +287,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == QtCore.Qt.RightButton:
+            self.father.zoomDrop.setCurrentIndex(2)
             self.fitPage()
             self.zoomBox = None
             self.updateScene()
