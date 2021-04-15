@@ -754,7 +754,7 @@ class aboutWindow(wc.ToolWindow):
         pythonVersion = sys.version
         pythonVersion = pythonVersion[:pythonVersion.index(' ')]
         self.text.setText('<p><b>Disprop ' + VERSION + '</b></p>' +
-                          '<p>Copyright (&copy;) 2020 Wouter Franssen.</p>'+
+                          '<p>Copyright (&copy;) 2020-2021 Wouter Franssen.</p>'+
                           '<p><b>Inspired by:</b><br>guiprep, by Stephen Schultze.<br>guiguts, by Stephen Schulze.</p>' + 
                           '<b>Library versions</b>:<br>Python ' + pythonVersion +
                           '<br>PyQt ' + QtCore.PYQT_VERSION_STR +

@@ -142,11 +142,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-
-        # Zoom box coordinates as a list of fractional positions in the image.
-        self.zoomBox = None
         self.zoom = 1
-
 
     def setImage(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
@@ -211,7 +207,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
             self.fitPage()
 
     def mousePressEvent(self, event):
-        scenePos = self.mapToScene(event.pos())
         if event.button() == QtCore.Qt.LeftButton:
             self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
         elif event.button() == QtCore.Qt.RightButton:
@@ -224,13 +219,31 @@ class ImageViewer(QtWidgets.QGraphicsView):
         if event.button() == QtCore.Qt.LeftButton:
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
         elif event.button() == QtCore.Qt.RightButton:
-            viewBBox = self.sceneRect()
-            selectionBBox = self.graphScene.selectionArea().boundingRect().intersected(viewBBox)
+            selectionBBox = self.graphScene.selectionArea().boundingRect()
             self.graphScene.setSelectionArea(QtGui.QPainterPath())  # Clear current selection area.
-            if selectionBBox.isValid() and (selectionBBox != viewBBox):
-                coords = selectionBBox.getCoords()
-                self.zoomBox = self.coords2frac(coords)
-                self.updateScene()
+            if selectionBBox.isValid():
+                coords = selectionBBox.getCoords() #points in scene
+                
+                xdiff = abs(coords[0] - coords[2])/self.currentPixmapItem.pixmap().width()
+                ydiff = abs(coords[1] - coords[3])/self.currentPixmapItem.pixmap().height()
+                # now we have the fraction to have in view.
+                # devide view size by this, to get the full size, and get the zoom levels
+                zoomx = self.viewport().width()/xdiff/self.pixmapBackup.width()
+                zoomy = self.viewport().height()/ydiff/self.pixmapBackup.height()
+                zoom = min(zoomx,zoomy)
+
+                oldx = min(coords[0],coords[2])/self.currentPixmapItem.pixmap().width()
+                oldy = min(coords[1],coords[3])/self.currentPixmapItem.pixmap().height()
+
+                self.setZoom(zoom)
+                # Find new position of the upper left point.
+                newx = oldx*self.currentPixmapItem.pixmap().width()
+                newy = oldy*self.currentPixmapItem.pixmap().height()
+
+                # Scroll with these values
+                self.horizontalScrollBar().setValue(newx)
+                self.verticalScrollBar().setValue(newy)
+
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
 
     def mouseDoubleClickEvent(self, event):
