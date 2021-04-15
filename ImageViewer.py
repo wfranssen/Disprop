@@ -46,7 +46,7 @@ class multiImageFrame(QtWidgets.QWidget):
         self.imageFrame.addWidget(self.pageName,1,2)
 
         self.zoomLevel = QtWidgets.QDoubleSpinBox(self)
-        self.zoomLevel.setMinimum(1)
+        self.zoomLevel.setMinimum(0.001)
         self.zoomLevel.setMaximum(1000)
         self.zoomLevel.setValue(100)
         self.zoomLevel.editingFinished.connect(self.changeZoom)
@@ -74,6 +74,7 @@ class multiImageFrame(QtWidgets.QWidget):
         image = QtGui.QImage(self.imageLocs[index - 1])
         #image.invertPixels()
         self.imageViewer.setImage(image)
+        self.imageViewer.scrollUp()
         self.pageName.setText(self.imageNames[index - 1])
         self.father.viewTabs.setVisible(True)
 
@@ -160,11 +161,17 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.updateScene()
 
     def setZoom(self,zoom):
+        zoom = max(zoom,self.father.zoomLevel.minimum()/100)
+        zoom = min(zoom,self.father.zoomLevel.maximum()/100)
         self.zoom = zoom
         self.updateScene()
 
     def scrollZoom(self,step):
-        self.zoom = self.zoom * 1.1**(step/120)
+        zoom = self.zoom * 1.1**(step/120)
+
+        zoom = max(zoom,self.father.zoomLevel.minimum()/100)
+        zoom = min(zoom,self.father.zoomLevel.maximum()/100)
+        self.zoom = zoom
         self.father.zoomLevel.setValue(self.zoom*100)
         self.updateScene()
         self.father.zoomDrop.setCurrentIndex(0)
@@ -200,6 +207,9 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.currentPixmapItem.setPixmap(Pixmap)
         self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
 
+    def scrollUp(self):
+        self.verticalScrollBar().setValue(0)
+
     def resizeEvent(self, event):
         if self.father.zoomDrop.currentIndex() == 1:
             self.fitWidth()
@@ -215,7 +225,6 @@ class ImageViewer(QtWidgets.QGraphicsView):
 
     def mouseReleaseEvent(self, event):
         QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
-        scenePos = self.mapToScene(event.pos())
         if event.button() == QtCore.Qt.LeftButton:
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
         elif event.button() == QtCore.Qt.RightButton:
@@ -243,6 +252,8 @@ class ImageViewer(QtWidgets.QGraphicsView):
                 # Scroll with these values
                 self.horizontalScrollBar().setValue(newx)
                 self.verticalScrollBar().setValue(newy)
+                self.father.zoomDrop.setCurrentIndex(0) # set view type to 'zoom'
+                self.father.zoomLevel.setValue(self.zoom*100)
 
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
 
