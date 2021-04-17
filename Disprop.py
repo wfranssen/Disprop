@@ -36,6 +36,7 @@ import widgetClasses as wc
 import ImageViewer as ImgV
 import TextViewer as TextV
 import unicodedata as uni
+import HtmlViewer as HtmlV
 import glyphs
 
 
@@ -92,6 +93,14 @@ class MainProgram(QtWidgets.QMainWindow):
         self.viewerList.append(imageViewer)
         self.currentViewer = self.viewerList[-1]
         self.currentViewer.setImageList(imageList)
+
+    def addHtmlViewer(self,loc):
+        wid = HtmlV.HtmlViewer(self)
+        self.viewTabs.addTab(wid,'HTML')
+        self.viewerList.append(wid)
+        self.currentViewer = self.viewerList[-1]
+        self.currentViewer.setHtml(loc)
+        self.viewTabs.setVisible(True)
 
     def addTextEdit(self,textList):
         textEdit = TextV.multiTextFrame(self)
@@ -306,11 +315,15 @@ class MainProgram(QtWidgets.QMainWindow):
         self.lastLocation = os.path.dirname(fileList[-1])  # Save used path
         #Get all text files, sorted alphabetically
         textList = sorted([x for x in fileList if x.endswith('.txt')])
+        htmlList = sorted([x for x in fileList if x.endswith('.html') or x.endswith('.htm')])
 
         #Get all image files, sorted alphabetically
         imageList = sorted([x for x in fileList if x.lower().endswith(IMG_TYPES)])
         if len(imageList):
             self.addImageViewer(imageList)
+        if len(htmlList):
+            for html in htmlList:
+                self.addHtmlViewer(html)
         if len(textList):
             self.addTextEdit(textList)
 
