@@ -59,22 +59,20 @@ class MainProgram(QtWidgets.QMainWindow):
         self.viewTabs.setTabsClosable(True)
         #self.tabs.currentChanged.connect(self.changeMainWindow)
         self.viewTabs.tabCloseRequested.connect(self.removeViewTab)
-        self.imageViewer = ImgV.multiImageFrame(self)
-        self.viewTabs.addTab(self.imageViewer,'Images')
         self.main_widget.addWidget(self.viewTabs)
         self.viewTabs.setVisible(False)
-        self.viewerList = [self.imageViewer]
-        self.currentViewerNum = 0
+        self.viewerList = []
+        self.currentViewer = None
 
         #Text files
         self.editTabs = QtWidgets.QTabWidget(self)
         self.editTabs.setMovable(False)
         self.editTabs.setTabsClosable(True)
-        self.textViewer = TextV.multiTextFrame(self)
-        self.editTabs.addTab(self.textViewer,'Texts')
+        self.editTabs.tabCloseRequested.connect(self.removeEditTab)
         self.main_widget.addWidget(self.editTabs)
         self.editTabs.setVisible(False)
-        self.currentEditor = self.textViewer
+        self.editorList = []
+        self.currentEditor = None
 
         # Settings
         self.initMenu()
@@ -88,6 +86,19 @@ class MainProgram(QtWidgets.QMainWindow):
         self.resize(1000, 1000)
         self.show()
 
+    def addImageViewer(self,imageList):
+        imageViewer = ImgV.multiImageFrame(self)
+        self.viewTabs.addTab(imageViewer,'Images')
+        self.viewerList.append(imageViewer)
+        self.currentViewer = self.viewerList[-1]
+        self.currentViewer.setImageList(imageList)
+
+    def addTextEdit(self,textList):
+        textEdit = TextV.multiTextFrame(self)
+        self.editTabs.addTab(textEdit,'Txt')
+        self.editorList.append(textEdit)
+        self.currentEditor = self.editorList[-1]
+        self.currentEditor.setTextList(textList)
 
     def dispMsg(self, msg, color='black'):
         if color == 'red':
@@ -100,11 +111,38 @@ class MainProgram(QtWidgets.QMainWindow):
         self.viewerList[num].clearReader() 
         self.viewTabs.removeTab(num)
         del self.viewerList[num]
-        if num == self.currentViewerNum:
+        if num == self.viewTabs.currentIndex():
             if num == len(self.viewerList):
-                self.currentViewerNum = num - 1
+                num = num - 1
+        elif num < self.viewTabs.currentIndex():
+            num = self.viewTabs.currentIndex() - 1
+        else:
+            num = self.viewTabs.currentIndex()
         if len(self.viewerList) == 0:
             self.viewTabs.hide()
+            self.currentViewer = None
+        else:
+            self.viewTabs.setCurrentIndex(num)
+            self.currentViewer = self.viewerList[num]
+        self.menuCheck()
+
+    def removeEditTab(self,num):
+        self.editorList[num].clearReader() 
+        self.editTabs.removeTab(num)
+        del self.editorList[num]
+        if num == self.editTabs.currentIndex():
+            if num == len(self.editorList):
+                num = num - 1
+        elif num < self.editTabs.currentIndex():
+            num = self.editTabs.currentIndex() - 1
+        else:
+            num = self.editTabs.currentIndex()
+        if len(self.editorList) == 0:
+            self.editTabs.hide()
+            self.currentEditor = None
+        else:
+            self.editTabs.setCurrentIndex(num)
+            self.currentEditor = self.editorList[num]
         self.menuCheck()
 
 
@@ -175,7 +213,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.helpmenu.menuAction().setEnabled(enable)
 
     def menuCheck(self):
-        if self.currentEditor.numberOfFiles():
+        if self.currentEditor is not None:
             self.textmenu.menuAction().setEnabled(True)
             self.textmenupost.menuAction().setEnabled(True)
             for act in self.textViewActs:
@@ -186,7 +224,7 @@ class MainProgram(QtWidgets.QMainWindow):
             for act in self.textViewActs:
                 act.setEnabled(False)
 
-        if  len(self.viewerList) > 0 and type(self.viewerList[self.currentViewerNum]) is ImgV.multiImageFrame:
+        if  type(self.currentViewer) is ImgV.multiImageFrame:
             self.imagemenu.menuAction().setEnabled(True)
         else:
             self.imagemenu.menuAction().setEnabled(False)
@@ -272,9 +310,9 @@ class MainProgram(QtWidgets.QMainWindow):
         #Get all image files, sorted alphabetically
         imageList = sorted([x for x in fileList if x.lower().endswith(IMG_TYPES)])
         if len(imageList):
-            self.imageViewer.setImageList(imageList)
+            self.addImageViewer(imageList)
         if len(textList):
-            self.textViewer.setTextList(textList)
+            self.addTextEdit(textList)
 
         self.menuCheck()
 
