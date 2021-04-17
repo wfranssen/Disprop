@@ -65,6 +65,7 @@ class Browser(QWebView):
     def __init__(self,parent):
         QWebView.__init__(self)
         self.father = parent
+        self.setStyleSheet("background: white;")
 
     def dropEvent(self, event):
         self.father.dropEvent(event)
