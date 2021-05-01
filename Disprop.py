@@ -243,14 +243,12 @@ class MainProgram(QtWidgets.QMainWindow):
 
     def cleanOCR(self):
         CleanOCRWindow(self)
-        #self.textViewer.cleanOCR()
 
     def transliterateGreek(self):
-        self.textViewer.transliterateGreek()
+        self.currentEditor.transliterateGreek()
 
     def hyphenCorrext(self):
         HyphenWindow(self)
-        #self.textViewer.getEOLHypenWords()
 
     def charCount(self):
         CharCountWindow(self)
@@ -263,38 +261,36 @@ class MainProgram(QtWidgets.QMainWindow):
 
     def labelEmptyPages(self):
         EmptyPagesWindow(self)
-        #self.textViewer.labelEmptyPage()
 
     def wordList(self):
-        #self.textViewer.getWordList()
         WordCountWindow(self)
 
     def textOpenGreek(self):
-        self.textViewer.openGreekWidget()
+        self.currentEditor.openGreekWidget()
 
     def textOpenCoptic(self):
-        self.textViewer.openCopticWidget()
+        self.currentEditor.openCopticWidget()
 
     def textOpenCyrillic(self):
-        self.textViewer.openCyrillicWidget()
+        self.currentEditor.openCyrillicWidget()
 
     def textOpenHebrew(self):
-        self.textViewer.openHebrewWidget()
+        self.currentEditor.openHebrewWidget()
 
     def textUniNorm(self):
-        self.textViewer.normUni()
+        self.currentEditor.normUni()
 
     def textOpenUnicode(self):
-        self.textViewer.openUnicodeWidget()
+        self.currentEditor.openUnicodeWidget()
 
     def textSearch(self):
-        self.textViewer.openSearchWindow()
+        self.currentEditor.openSearchWindow()
 
     def textDPSearch(self):
-        self.textViewer.openSearchDPWindow()
+        self.currentEditor.openSearchDPWindow()
 
     def textTonos2Oxia(self):
-        self.textViewer.greekTonos2Oxia()
+        self.currentEditor.greekTonos2Oxia()
 
     def openFileDialog(self):
         fileList = QtWidgets.QFileDialog.getOpenFileNames(self, 'Open File', self.lastLocation)
@@ -368,7 +364,7 @@ class HyphenWindow(wc.ToolWindow):
         useDict = self.checkDict.isChecked()
         useText = self.checkText.isChecked()
         otherwise = self.otherwiseDrop.currentIndex()
-        self.father.textViewer.delEOLHypenWords(useDict,useText,otherwise)
+        self.father.currentEditor.delEOLHypenWords(useDict,useText,otherwise)
 
 
 class EmptyPagesWindow(wc.ToolWindow):
@@ -382,7 +378,7 @@ class EmptyPagesWindow(wc.ToolWindow):
         self.grid.addWidget(self.text,1,0)
 
     def applyFunc(self):
-        self.father.textViewer.labelEmptyPage(self.text.text())
+        self.father.currentEditor.labelEmptyPage(self.text.text())
 
 
 
@@ -411,7 +407,7 @@ class CharCountWindow(wc.ToolWindow):
 
     def upd(self):
         ordType = self.orderType.currentIndex()
-        counter = self.father.textViewer.getCharCount()
+        counter = self.father.currentEditor.getCharCount()
         self.table.setRowCount(len(counter.keys()))
 
         if ordType == 0: #Alphabetical
@@ -473,12 +469,12 @@ class CharCountWindow(wc.ToolWindow):
     def replaceChar(self,char):
         text, ok = QtWidgets.QInputDialog.getText(self, 'Replace character by', 'Characters:')
         if ok:
-            self.father.textViewer.runRegexp([[re.escape(char),re.escape(text)]],all=True)
+            self.father.currentEditor.runRegexp([[re.escape(char),re.escape(text)]],all=True)
             self.upd()
 
 
     def applyFunc(self):
-        self.father.textViewer.saveCurrent()
+        self.father.currentEditor.saveCurrent()
         self.upd()
 
 
@@ -507,8 +503,8 @@ class WordCountWindow(wc.ToolWindow):
 
     def upd(self):
         ordType = self.orderType.currentIndex()
-        #counter = self.father.textViewer.getCharCount()
-        counter = self.father.textViewer.getWordList()
+        #counter = self.father.currentEditor.getCharCount()
+        counter = self.father.currentEditor.getWordList()
         self.table.setRowCount(len(counter.keys()))
         keys = counter.keys()
 
@@ -543,7 +539,7 @@ class WordCountWindow(wc.ToolWindow):
 
 
     def applyFunc(self):
-        self.father.textViewer.saveCurrent()
+        self.father.currentEditor.saveCurrent()
         self.upd()
 
 
@@ -569,7 +565,7 @@ class HeaderDelWindow(wc.ToolWindow):
         self.cleanCheck.setChecked(True)
         self.grid.addWidget(self.cleanCheck, 2, 0)
         self.resize(900, 800)
-        self.father.textViewer.setReadOnly(True)
+        self.father.currentEditor.setReadOnly(True)
 
 
     def itemClicked(self,item):
@@ -585,11 +581,11 @@ class HeaderDelWindow(wc.ToolWindow):
                 check.setCheckState(2)
 
     def getLines(self):
-        return self.father.textViewer.getHeaders()
+        return self.father.currentEditor.getHeaders()
 
 
     def upd(self):
-        pagenames = self.father.textViewer.textNames 
+        pagenames = self.father.currentEditor.textNames 
         self.table.setRowCount(len(pagenames))
         headers =  self.getLines()
         self.checkList = []
@@ -619,12 +615,12 @@ class HeaderDelWindow(wc.ToolWindow):
         self.table.resizeColumnsToContents()
 
     def closeEvent(self, *args):
-        self.father.textViewer.setReadOnly(False)
+        self.father.currentEditor.setReadOnly(False)
         wc.ToolWindow.closeEvent(self)
 
     def applyFunc(self):
         checks = [x.checkState() if x is not None else False for x in self.checkList]
-        self.father.textViewer.delHeaders(checks,self.cleanCheck.isChecked()) 
+        self.father.currentEditor.delHeaders(checks,self.cleanCheck.isChecked()) 
 
 
 class FooterDelWindow(HeaderDelWindow):
@@ -636,11 +632,11 @@ class FooterDelWindow(HeaderDelWindow):
         self.table.setHorizontalHeaderLabels(['Remove','Page #','Page name','Footer'])
 
     def getLines(self):
-        return self.father.textViewer.getFooters()
+        return self.father.currentEditor.getFooters()
 
     def applyFunc(self):
         checks = [x.checkState() if x is not None else False for x in self.checkList]
-        self.father.textViewer.delFooters(checks,self.cleanCheck.isChecked()) 
+        self.father.currentEditor.delFooters(checks,self.cleanCheck.isChecked()) 
 
 
 
@@ -753,7 +749,7 @@ class CleanOCRWindow(wc.ToolWindow):
         self.setBools()
 
         self.grid.addWidget(self.tabs, 1, 0, 1, 2)
-        self.father.textViewer.setReadOnly(True)
+        self.father.currentEditor.setReadOnly(True)
 
     def setBools(self):
         ind = self.presetDrop.currentIndex()
@@ -775,12 +771,12 @@ class CleanOCRWindow(wc.ToolWindow):
 
 
     def closeEvent(self, *args):
-        self.father.textViewer.setReadOnly(False)
+        self.father.currentEditor.setReadOnly(False)
         wc.ToolWindow.closeEvent(self)
 
     def applyFunc(self):
         names = [x[1] for x in zip(self.allChecks,self.allCodeNames) if x[0].isChecked()]
-        self.father.textViewer.cleanOCR(names)
+        self.father.currentEditor.cleanOCR(names)
 
 class aboutWindow(wc.ToolWindow):
 
