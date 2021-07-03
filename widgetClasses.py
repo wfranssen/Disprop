@@ -158,6 +158,7 @@ class CharInputWindow(QtWidgets.QWidget):
 
     def buttonPush(self,char):
         self.father.insertStr(char)
+        self.father.textViewer.setFocus()
 
 class specialButton(QtWidgets.QPushButton):
     """ 

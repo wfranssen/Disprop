@@ -807,6 +807,8 @@ class GreekInputWindow(wc.CharInputWindow):
             if states[pos]:
                 for but in elem:
                     self.modifierButtons[but].setEnabled(False)
+        # Return focus
+        self.father.textViewer.setFocus()
 
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]
@@ -898,6 +900,8 @@ class HebrewInputWindow(wc.CharInputWindow):
         #Turn all on to start with
         for button in self.modifierButtons:
             button.setEnabled(True)
+        # Return focus
+        self.father.textViewer.setFocus()
 
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]
