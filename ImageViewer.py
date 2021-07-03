@@ -266,7 +266,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
         QtWidgets.QGraphicsView.mouseDoubleClickEvent(self, event)
 
     def wheelEvent(self,event):
-        if event.modifiers() & QtCore.Qt.ControlModifier:
+        if event.modifiers() & QtCore.Qt.ControlModifier or event.buttons() == QtCore.Qt.RightButton:
             """
             Update the view to new zoom. Scroll the area to keep the same
             absolute image position under the cursor.
