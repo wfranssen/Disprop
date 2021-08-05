@@ -51,6 +51,8 @@ class MainProgram(QtWidgets.QMainWindow):
         self.setAcceptDrops(True)
         self.main_widget = QtWidgets.QSplitter(self)
         self.main_widget.setHandleWidth(10)
+        #self.main_widget.setOrientation(QtCore.Qt.Vertical)
+        
         self.setCentralWidget(self.main_widget)
 
         #viewers
@@ -160,7 +162,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.toolbar.setMovable(False)
         self.toolbar.setIconSize(QtCore.QSize(22, 22))
         self.toolbar.toggleViewAction().setEnabled(False)
-        acts = [self.cleanOCRAct,self.headerDelAct,self.footerDelAct,self.emptyPagesAct,self.hyphenWordsAct,self.greekWidgetAct]
+        acts = [self.cleanOCRAct,self.headerDelAct,self.footerDelAct,self.emptyPagesAct,self.hyphenWordsAct,self.greekWidgetAct,self.formatWidgetAct]
         for act in acts:
             self.toolbar.addAction(act)
 
@@ -197,6 +199,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.unicodeNormAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'uninorm.png'),'Unicode normalize', self.textUniNorm)
         self.unicodeWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'unicodeinput.png'),'Unicode input window', self.textOpenUnicode)
         self.searchWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'search.png'),'Search', self.textSearch, QtCore.Qt.CTRL + QtCore.Qt.Key_F)
+        self.formatWidgetAct = self.textmenu.addAction(QtGui.QIcon(IconDirectory + 'format.png'),'Format tools', self.textFormat)
         
         self.textmenupost = QtWidgets.QMenu('Text editor: post', self)
         self.menubar.addMenu(self.textmenupost)
@@ -206,7 +209,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.textViewActs = [self.cleanOCRAct,self.charCountAct,self.wordListAct,
                             self.hyphenWordsAct,self.headerDelAct,self.footerDelAct,self.emptyPagesAct,
                             self.greekWidgetAct,self.hebrewWidgetAct,self.unicodeWidgetAct,
-                            self.searchWidgetAct,self.searchDPmarksAct,self.tonos2OxiaAct]
+                            self.searchWidgetAct,self.searchDPmarksAct,self.tonos2OxiaAct,self.formatWidgetAct]
 
         self.helpmenu = QtWidgets.QMenu('Help', self)
         self.menubar.addMenu(self.helpmenu)
@@ -285,6 +288,9 @@ class MainProgram(QtWidgets.QMainWindow):
 
     def textSearch(self):
         self.currentEditor.openSearchWindow()
+
+    def textFormat(self):
+        self.currentEditor.openFormatWindow()
 
     def textDPSearch(self):
         self.currentEditor.openSearchDPWindow()

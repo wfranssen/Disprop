@@ -115,6 +115,9 @@ class multiTextFrame(QtWidgets.QSplitter):
     def openSearchDPWindow(self):
         self.openInputWidget(SearchDPWindow(self))
 
+    def openFormatWindow(self):
+        self.openInputWidget(FormatWindow(self))
+
     def openInputWidget(self,widget):
         if self.inputWindowWidget is not None:
             self.removeInputWindow()
@@ -225,6 +228,12 @@ class multiTextFrame(QtWidgets.QSplitter):
                     self.search(sstr,side,regex,loop)
                 else:
                     self.father.dispMsg('TextEdit: Reached file limits')
+
+    def addMarkup(self,markup):
+        # Markup: len 2 list, start and end insert
+        text = self.textViewer.textCursor().selectedText()
+        input = markup[0] + text + markup[1]
+        self.insertStr(input)
 
 
     def setTextList(self,pathList,reset=True):
@@ -698,6 +707,55 @@ class SearchDPWindow(QtWidgets.QWidget):
 
     def search(self,text,side):
         self.father.search(text,side,False,loop=True)
+
+class FormatWindow(QtWidgets.QWidget):
+    def __init__(self,parent):
+        QtWidgets.QWidget.__init__(self)
+        self.father = parent
+        layout = QtWidgets.QGridLayout(self)
+        layout.setColumnStretch(1,1)
+        self.tabs = QtWidgets.QTabWidget(self)
+        layout.addWidget(QtWidgets.QLabel('<b>Format window</b>'), 0, 0)
+        self.closeButton = QtWidgets.QPushButton('Close')
+        layout.addWidget(self.closeButton, 0, 2)
+        self.frame = QtWidgets.QGridLayout()
+        layout.addLayout(self.frame, 2, 0, 1, 3)
+        self.closeButton.clicked.connect(self.father.removeInputWindow)
+
+        types = ['i','b','sc','g','f']
+        buttons = []
+        for pos, val in enumerate(types):
+            buttons.append(QtWidgets.QPushButton(f'<{val}>'))
+            buttons[-1].clicked.connect(lambda arg, input=[f'<{val}>',f'</{val}>']: self.insert(input))
+            self.frame.addWidget(buttons[-1],0,pos)
+
+        sidebut = QtWidgets.QPushButton('[Sidenote: ]')
+        sidebut.clicked.connect(lambda arg, input=['[Sidenote: ',']']: self.insert(input))
+        self.frame.addWidget(sidebut,1,0)
+
+        illbut = QtWidgets.QPushButton('[Illustration: ]')
+        illbut.clicked.connect(lambda arg, input=['[Illustration: ',']']: self.insert(input))
+        self.frame.addWidget(illbut,1,1)
+
+        footbut = QtWidgets.QPushButton('[Footnote: ]')
+        footbut.clicked.connect(lambda arg, input=['[Footnote: ',']']: self.insert(input))
+        self.frame.addWidget(footbut,1,2)
+        footbut.setEnabled(False)
+
+        nowrapbut = QtWidgets.QPushButton('/* */')
+        nowrapbut.clicked.connect(lambda arg, input=['/*\n','\n*/']: self.insert(input))
+        self.frame.addWidget(nowrapbut,1,3)
+
+        wrapbut = QtWidgets.QPushButton('/# #/')
+        wrapbut.clicked.connect(lambda arg, input=['/#\n','\n#/']: self.insert(input))
+        self.frame.addWidget(wrapbut,1,4)
+
+        tbbut = QtWidgets.QPushButton('<tb>')
+        tbbut.clicked.connect(lambda arg, input=['\n<tb>\n','']: self.insert(input))
+        self.frame.addWidget(tbbut,1,5)
+
+    def insert(self,text):
+        self.father.addMarkup(text)
 
 
 class CopticInputWindow(wc.CharInputWindow):
