@@ -22,6 +22,7 @@ import os.path
 from PyQt5 import QtGui, QtCore, QtWidgets
 import unicodedata as uni
 import re
+import string
 import collections as col
 import math
 import greek
@@ -229,10 +230,17 @@ class multiTextFrame(QtWidgets.QSplitter):
                 else:
                     self.father.dispMsg('TextEdit: Reached file limits')
 
-    def addMarkup(self,markup):
+    def addMarkup(self,markup,special = None):
         # Markup: len 2 list, start and end insert
         text = self.textViewer.textCursor().selectedText()
-        input = markup[0] + text + markup[1]
+        if special == 'footnote':
+            start, rest = text.split(' ', 1)
+            if start.isnumeric() or (len(start) == 1 and start in string.ascii_uppercase):
+                input = markup[0] + ' ' + start + ': ' + rest + markup[1]
+            else:
+                input = markup[0] + ': ' + text + markup[1]
+        else:
+            input = markup[0] + text + markup[1]
         self.insertStr(input)
 
 
@@ -738,9 +746,8 @@ class FormatWindow(QtWidgets.QWidget):
         self.frame.addWidget(illbut,1,1)
 
         footbut = QtWidgets.QPushButton('[Footnote: ]')
-        footbut.clicked.connect(lambda arg, input=['[Footnote: ',']']: self.insert(input))
+        footbut.clicked.connect(lambda arg, input=['[Footnote',']']: self.insert(input,special='footnote'))
         self.frame.addWidget(footbut,1,2)
-        footbut.setEnabled(False)
 
         nowrapbut = QtWidgets.QPushButton('/* */')
         nowrapbut.clicked.connect(lambda arg, input=['/*\n','\n*/']: self.insert(input))
@@ -754,8 +761,8 @@ class FormatWindow(QtWidgets.QWidget):
         tbbut.clicked.connect(lambda arg, input=['\n<tb>\n','']: self.insert(input))
         self.frame.addWidget(tbbut,1,5)
 
-    def insert(self,text):
-        self.father.addMarkup(text)
+    def insert(self,text,special=None):
+        self.father.addMarkup(text,special)
 
 
 class CopticInputWindow(wc.CharInputWindow):
