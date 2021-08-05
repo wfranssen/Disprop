@@ -51,6 +51,7 @@ class MainProgram(QtWidgets.QMainWindow):
         self.setAcceptDrops(True)
         self.main_widget = QtWidgets.QSplitter(self)
         self.main_widget.setHandleWidth(10)
+        self.splitterOrient = 'Horizontal'
         #self.main_widget.setOrientation(QtCore.Qt.Vertical)
         
         self.setCentralWidget(self.main_widget)
@@ -176,6 +177,9 @@ class MainProgram(QtWidgets.QMainWindow):
         self.openFileAct = self.filemenu.addAction('Add files', self.openFileDialog)
         self.openFolderAct = self.filemenu.addAction('Add folder', self.openFolderDialog)
 
+        self.viewmenu = QtWidgets.QMenu('View', self)
+        self.menubar.addMenu(self.viewmenu)
+        self.splitterOrientAct = self.viewmenu.addAction('Toggle horizontal/vertical view', self.toggleSplitterOrient)
 
         self.imagemenu = QtWidgets.QMenu('Image viewer', self)
         self.menubar.addMenu(self.imagemenu)
@@ -240,6 +244,21 @@ class MainProgram(QtWidgets.QMainWindow):
             self.imagemenu.menuAction().setEnabled(True)
         else:
             self.imagemenu.menuAction().setEnabled(False)
+
+    def toggleSplitterOrient(self):
+        if self.splitterOrient == 'Horizontal':
+            self.splitterOrient = 'Vertical'
+        else:
+            self.splitterOrient = 'Horizontal'
+
+        if self.splitterOrient == 'Horizontal':
+            self.main_widget.setOrientation(QtCore.Qt.Horizontal)
+            self.viewTabs.setTabPosition(QtWidgets.QTabWidget.North)
+            self.editTabs.setTabPosition(QtWidgets.QTabWidget.North)
+        else:
+            self.main_widget.setOrientation(QtCore.Qt.Vertical)
+            self.viewTabs.setTabPosition(QtWidgets.QTabWidget.West)
+            self.editTabs.setTabPosition(QtWidgets.QTabWidget.West)
 
     def optimizePNG(self):
         self.currentViewer.optimizePNG()
