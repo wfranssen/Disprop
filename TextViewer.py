@@ -238,7 +238,8 @@ class multiTextFrame(QtWidgets.QSplitter):
                 input = markup[0] + ': ' + text + markup[1]
         else:
             input = markup[0] + text + markup[1]
-        self.insertStr(input)
+        self.insertStr(input,select=True)
+
 
     def captionSelection(self,type):
         text = self.textViewer.textCursor().selectedText()
@@ -249,7 +250,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         elif type == 'Abc':
             text = text.lower() #start with lower version
             text = re.sub(r"[^\W\d_]{3,}('[\W\d_]+)?", lambda mo: mo.group(0).capitalize(), text)
-        self.insertStr(text)
+        self.insertStr(text,select=True)
 
 
     def setTextList(self,pathList,reset=True):
@@ -619,8 +620,13 @@ class multiTextFrame(QtWidgets.QSplitter):
 
         self.reload()
 
-    def insertStr(self,string):
+    def insertStr(self,string,select=False):
         self.textViewer.insertPlainText(string)
+        if select:
+            cursor = self.textViewer.textCursor()
+            pos = cursor.position()
+            cursor.setPosition(pos-len(string), QtGui.QTextCursor.KeepAnchor)
+            self.textViewer.setTextCursor(cursor)
 
         
 
@@ -780,9 +786,11 @@ class FormatWindow(QtWidgets.QWidget):
 
     def insert(self,text,special=None):
         self.father.addMarkup(text,special)
+        self.father.textViewer.setFocus()
 
     def caption(self,type):
         self.father.captionSelection(type)
+        self.father.textViewer.setFocus()
 
 
 class CopticInputWindow(wc.CharInputWindow):
