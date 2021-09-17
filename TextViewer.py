@@ -391,6 +391,9 @@ class multiTextFrame(QtWidgets.QSplitter):
         if 'bracesconv' in nameslist:
             RegExps.append(['{','('])
             RegExps.append(['}',')'])
+
+        if 'commapara' in nameslist:
+            RegExps.append([',\n\n','.\n\n'])
         
         if 'fixopenbrack' in nameslist:
             RegExps.append(['\( +','(']) #Remove spaces after opening brackets

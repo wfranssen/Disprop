@@ -712,7 +712,7 @@ class CleanOCRWindow(wc.ToolWindow):
         'Exclamation marks','Closing brackets )']
         self.punctCodeList = ['fixcolon','fixscolon','fixperiod','fixcomma','fixquestion',
         'fixexlam','fixclosebrack','fixopenbrack','convellip','emdashconv','emspace','emdashEOL',
-        'emdashSOL','underscoreconv','bracesconv']
+        'emdashSOL','underscoreconv','bracesconv','commapara']
         for pos, name in enumerate(labels):
             self.punctChecks.append(QtWidgets.QCheckBox(name))
             punctGrid.addWidget(self.punctChecks[-1],pos + 1,0)
@@ -727,7 +727,8 @@ class CleanOCRWindow(wc.ToolWindow):
 
         punctOtherlabels = ['Convert ellipsis to three periods','Convert em-dash to --',
         'Remove spaces on either side of --','Join EOL -- with next word',
-        'Join start of line -- with previous word','Convert _ to -','Convert {} to ()']
+        'Join start of line -- with previous word','Convert _ to -','Convert {} to ()',
+        'Convert end of paragraph , to .']
         for pos, name in enumerate(punctOtherlabels):
             self.punctChecks.append(QtWidgets.QCheckBox(name))
             punctGrid.addWidget(self.punctChecks[-1],pos + 41,0)
