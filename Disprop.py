@@ -37,6 +37,7 @@ import ImageViewer as ImgV
 import TextEditor as TextV
 import unicodedata as uni
 import HtmlViewer as HtmlV
+import HtmlEditor as HtmlE
 import glyphs
 
 
@@ -104,6 +105,13 @@ class MainProgram(QtWidgets.QMainWindow):
         self.currentViewer = self.viewerList[-1]
         self.currentViewer.setHtml(loc)
         self.viewTabs.setVisible(True)
+
+    def addHtmlEditor(self,loc):
+        htmlEdit = HtmlE.HtmlEditFrame(self)
+        self.editTabs.addTab(htmlEdit,'Html')
+        self.editorList.append(htmlEdit)
+        self.currentEditor = self.editorList[-1]
+        self.currentEditor.setTextList([loc])
 
     def addTextEdit(self,textList):
         textEdit = TextV.multiTextFrame(self)
@@ -345,6 +353,7 @@ class MainProgram(QtWidgets.QMainWindow):
         if len(htmlList):
             for html in htmlList:
                 self.addHtmlViewer(html)
+                self.addHtmlEditor(html)
         if len(textList):
             self.addTextEdit(textList)
 
