@@ -47,20 +47,20 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.textFrame = QtWidgets.QGridLayout(self.textWidget)
         self.addWidget(self.textWidget)
 
-        self.textViewer = QtTextEdit(self)
+        self.textEditor = QtTextEdit(self)
 
         #Force LTR text
-        #doc = self.textViewer.document()
+        #doc = self.textEditor.document()
         #textOption = doc.defaultTextOption()
         #textOption.setTextDirection(QtCore.Qt.LeftToRight)
         #doc.setDefaultTextOption(textOption)
-        #self.textViewer.setDocument(doc)
+        #self.textEditor.setDocument(doc)
 
 
-        self.textFrame.addWidget(self.textViewer, 0, 0, 1, 11)
-        self.textViewer.setAcceptRichText(False)
-        self.textViewer.cursorPositionChanged.connect(self.cursorPositionChanged)
-        self.textViewer.leave.connect(self.saveCurrent)
+        self.textFrame.addWidget(self.textEditor, 0, 0, 1, 11)
+        self.textEditor.setAcceptRichText(False)
+        self.textEditor.cursorPositionChanged.connect(self.cursorPositionChanged)
+        self.textEditor.leave.connect(self.saveCurrent)
 
         self.textPageSpin = QtWidgets.QSpinBox(self)
         self.textPageSpin.setMinimum(1)
@@ -144,7 +144,7 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.reload()
 
     def setReadOnly(self,readOnly):
-        self.textViewer.setReadOnly(readOnly)
+        self.textEditor.setReadOnly(readOnly)
 
     def changeTextIndex(self,index,save=True):
         if save:
@@ -156,8 +156,8 @@ class multiTextFrame(QtWidgets.QSplitter):
         index = self.textIndex
         with open(self.textLocs[index - 1],'r') as f:
             text = f.read()
-        self.textViewer.setCurrentFont(QtGui.QFont(self.font))
-        self.textViewer.setPlainText(text)
+        self.textEditor.setCurrentFont(QtGui.QFont(self.font))
+        self.textEditor.setPlainText(text)
         self.textPageName.setText(self.textNames[index - 1])
         self.textPageSpin.setValue(index)
         self.father.editTabs.setVisible(True)
@@ -187,8 +187,8 @@ class multiTextFrame(QtWidgets.QSplitter):
         loop: bool, if True, loop pages by incrementing index.
         """
         self.lastSearch = sstr
-        cursor = self.textViewer.textCursor()
-        text = self.textViewer.toPlainText()
+        cursor = self.textEditor.textCursor()
+        text = self.textEditor.toPlainText()
         if regex is True:
             if side == 'f': #forward search
                 tmp = text[cursor.selectionEnd():]
@@ -213,7 +213,7 @@ class multiTextFrame(QtWidgets.QSplitter):
             cursor.setPosition(pos)
             cursor.setPosition(pos, QtGui.QTextCursor.MoveAnchor);
             cursor.setPosition(pos + matchlen, QtGui.QTextCursor.KeepAnchor);
-            self.textViewer.setTextCursor(cursor)
+            self.textEditor.setTextCursor(cursor)
         else: # not found, increment file index en search again. Improve by doing this on file
               # without loading it.
             if loop:
@@ -221,7 +221,7 @@ class multiTextFrame(QtWidgets.QSplitter):
                 if side == 'b':
                     # If backwards, reset cursor to end of page.
                     cursor.movePosition(QtGui.QTextCursor.End)
-                    self.textViewer.setTextCursor(cursor)
+                    self.textEditor.setTextCursor(cursor)
                 if check:
                     self.search(sstr,side,regex,loop)
                 else:
@@ -229,7 +229,7 @@ class multiTextFrame(QtWidgets.QSplitter):
 
     def addMarkup(self,markup,special = None):
         # Markup: len 2 list, start and end insert
-        text = self.textViewer.textCursor().selectedText()
+        text = self.textEditor.textCursor().selectedText()
         if special == 'footnote':
             start, rest = text.split(' ', 1)
             if start.isnumeric() or (len(start) == 1 and start in string.ascii_uppercase):
@@ -242,7 +242,7 @@ class multiTextFrame(QtWidgets.QSplitter):
 
 
     def captionSelection(self,type):
-        text = self.textViewer.textCursor().selectedText()
+        text = self.textEditor.textCursor().selectedText()
         if type == 'abc':
             text = text.lower()
         elif type == 'ABC':
@@ -268,7 +268,7 @@ class multiTextFrame(QtWidgets.QSplitter):
 
     def saveText(self,index):
         with open(self.textLocs[index - 1],'w') as f:
-            f.write(self.textViewer.toPlainText())
+            f.write(self.textEditor.toPlainText())
 
     def saveCurrent(self):
         if self.textLocs is not None:
@@ -295,18 +295,18 @@ class multiTextFrame(QtWidgets.QSplitter):
             event.ignore()
 
     def cursorPositionChanged(self):
-        Select = self.textViewer.textCursor().selectedText()
+        Select = self.textEditor.textCursor().selectedText()
 
         if len(Select) == 1:
             self.unicodeLabel.setText(uni.name(Select[0]))
         else:
             self.unicodeLabel.setText('')
 
-        #tc = self.textViewer.textCursor()
+        #tc = self.textEditor.textCursor()
         #tbf = tc.blockFormat()
         #tbf.setLayoutDirection( QtCore.Qt.LeftToRight )
         #tc.setBlockFormat(tbf)
-        #self.textViewer.setTextCursor(tc)
+        #self.textEditor.setTextCursor(tc)
 
 
     def runRegexp(self,regexps,all=False):
@@ -621,12 +621,12 @@ class multiTextFrame(QtWidgets.QSplitter):
         self.reload()
 
     def insertStr(self,string,select=False):
-        self.textViewer.insertPlainText(string)
+        self.textEditor.insertPlainText(string)
         if select:
-            cursor = self.textViewer.textCursor()
+            cursor = self.textEditor.textCursor()
             pos = cursor.position()
             cursor.setPosition(pos-len(string), QtGui.QTextCursor.KeepAnchor)
-            self.textViewer.setTextCursor(cursor)
+            self.textEditor.setTextCursor(cursor)
 
         
 
@@ -786,11 +786,11 @@ class FormatWindow(QtWidgets.QWidget):
 
     def insert(self,text,special=None):
         self.father.addMarkup(text,special)
-        self.father.textViewer.setFocus()
+        self.father.textEditor.setFocus()
 
     def caption(self,type):
         self.father.captionSelection(type)
-        self.father.textViewer.setFocus()
+        self.father.textEditor.setFocus()
 
 
 class CopticInputWindow(wc.CharInputWindow):
@@ -901,7 +901,7 @@ class GreekInputWindow(wc.CharInputWindow):
                 for but in elem:
                     self.modifierButtons[but].setEnabled(False)
         # Return focus
-        self.father.textViewer.setFocus()
+        self.father.textEditor.setFocus()
 
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]
@@ -994,7 +994,7 @@ class HebrewInputWindow(wc.CharInputWindow):
         for button in self.modifierButtons:
             button.setEnabled(True)
         # Return focus
-        self.father.textViewer.setFocus()
+        self.father.textEditor.setFocus()
 
     def getCurrentChars(self):
         states = [x.isChecked() for x in self.modifierButtons]

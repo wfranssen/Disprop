@@ -34,7 +34,7 @@ if __name__ == '__main__':
 import re
 import widgetClasses as wc
 import ImageViewer as ImgV
-import TextViewer as TextV
+import TextEditor as TextV
 import unicodedata as uni
 import HtmlViewer as HtmlV
 import glyphs
