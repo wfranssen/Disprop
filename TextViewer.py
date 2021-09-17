@@ -240,6 +240,17 @@ class multiTextFrame(QtWidgets.QSplitter):
             input = markup[0] + text + markup[1]
         self.insertStr(input)
 
+    def captionSelection(self,type):
+        text = self.textViewer.textCursor().selectedText()
+        if type == 'abc':
+            text = text.lower()
+        elif type == 'ABC':
+            text = text.upper()
+        elif type == 'Abc':
+            text = text.lower() #start with lower version
+            text = re.sub(r"[^\W\d_]{3,}('[\W\d_]+)?", lambda mo: mo.group(0).capitalize(), text)
+        self.insertStr(text)
+
 
     def setTextList(self,pathList,reset=True):
         if len(pathList) > 0:
@@ -736,6 +747,12 @@ class FormatWindow(QtWidgets.QWidget):
             buttons.append(QtWidgets.QPushButton(f'<{val}>'))
             buttons[-1].clicked.connect(lambda arg, input=[f'<{val}>',f'</{val}>']: self.insert(input))
             self.frame.addWidget(buttons[-1],0,pos)
+        types = ['abc','ABC','Abc']
+        for pos, val in enumerate(types):
+            buttons.append(QtWidgets.QPushButton(val))
+            buttons[-1].clicked.connect(lambda arg, input = val: self.caption(input))
+            self.frame.addWidget(buttons[-1],0,pos + 5)
+
 
         sidebut = QtWidgets.QPushButton('[Sidenote: ]')
         sidebut.clicked.connect(lambda arg, input=['[Sidenote: ',']']: self.insert(input))
@@ -763,6 +780,9 @@ class FormatWindow(QtWidgets.QWidget):
 
     def insert(self,text,special=None):
         self.father.addMarkup(text,special)
+
+    def caption(self,type):
+        self.father.captionSelection(type)
 
 
 class CopticInputWindow(wc.CharInputWindow):
@@ -1133,7 +1153,7 @@ def getWordCount(text):
     text = re.sub("[^\w,.'’\\-*]",' ',text)
     text = re.sub('[_]',' ',text) #Remove underscore that is in \w
     words = text.split() #split based on white chars
-    # strip puntuation etc from left and right
+    # strip punctuation etc from left and right
     words = [w.strip('\'\.,') for w in words]
     # strip some chars from the left only
     words = [w.lstrip('-*') for w in words]
