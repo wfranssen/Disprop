@@ -217,11 +217,12 @@ class MainProgram(QtWidgets.QMainWindow):
         self.menubar.addMenu(self.textmenupost)
         self.searchDPmarksAct = self.textmenupost.addAction('Find DP markers', self.textDPSearch)
         self.tonos2OxiaAct = self.textmenupost.addAction('Convert Tonos to Oxia', self.textTonos2Oxia)
+        self.starHyphenWidgetAct = self.textmenupost.addAction('Fix starred hyphens', self.textStarHyphen)
 
         self.textViewActs = [self.cleanOCRAct,self.charCountAct,self.wordListAct,
                             self.hyphenWordsAct,self.headerDelAct,self.footerDelAct,self.emptyPagesAct,
                             self.greekWidgetAct,self.hebrewWidgetAct,self.unicodeWidgetAct,
-                            self.searchWidgetAct,self.searchDPmarksAct,self.tonos2OxiaAct,self.formatWidgetAct]
+                            self.searchWidgetAct,self.searchDPmarksAct,self.tonos2OxiaAct,self.formatWidgetAct,self.starHyphenWidgetAct]
 
         self.helpmenu = QtWidgets.QMenu('Help', self)
         self.menubar.addMenu(self.helpmenu)
@@ -318,6 +319,10 @@ class MainProgram(QtWidgets.QMainWindow):
 
     def textFormat(self):
         self.currentEditor.openFormatWindow()
+
+    def textStarHyphen(self):
+        self.currentEditor.openStarHyphenFixWindow()
+
 
     def textDPSearch(self):
         self.currentEditor.openSearchDPWindow()

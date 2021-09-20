@@ -24,6 +24,7 @@ import unicodedata as uni
 import re
 import string
 import collections as col
+from ast import literal_eval
 import math
 import greek
 import glyphs
@@ -31,6 +32,35 @@ import widgetClasses as wc
 import unicode as unicode
 
 #QtGui.QFontDatabase.addApplicationFont(os.path.dirname(os.path.realpath(__file__)) + '/DPSansMono.ttf')
+
+def getNgrams(input, corpus = 26, startYear = 1800, endYear = 1925, smoothing = 1):
+    """
+    Probes word frequency from google ngram.
+
+    Parameters
+    ----------
+    input: string, comma seperated words that need to be looked up
+    corpus [= 26]: int, specifying dataset (language etc.)
+    startYear [= 1800]: int, start year of data request
+    endYear [= 1925]: int, end year of data request
+    smoothing [= 1]: int, how much smooting is used. Not useful, so keep at 1.
+
+    Returns
+    -------
+    List: sum values of the percentage occurring of each word.
+    """
+    import requests
+    params = dict(content=input, year_start=startYear, year_end=endYear,
+                  corpus=corpus, smoothing=smoothing)
+    req = requests.get('http://books.google.com/ngrams/graph', params=params)
+    res = re.findall('ngrams.data = (.*?);\\n', req.text)
+    data = [qry['timeseries'] for qry in literal_eval(res[0])]
+
+    sums = [0] * len(data)
+    for pos, entry in enumerate(data):
+        for val in entry:
+            sums[pos] += val
+    return sums
 
 class multiTextFrame(QtWidgets.QSplitter):
     def __init__(self,parent):
@@ -115,6 +145,9 @@ class multiTextFrame(QtWidgets.QSplitter):
 
     def openFormatWindow(self):
         self.openInputWidget(FormatWindow(self))
+
+    def openStarHyphenFixWindow(self):
+        self.openInputWidget(StarHyphenFixWindow(self))
 
     def openInputWidget(self,widget):
         if self.inputWindowWidget is not None:
@@ -791,6 +824,90 @@ class FormatWindow(QtWidgets.QWidget):
     def caption(self,type):
         self.father.captionSelection(type)
         self.father.textEditor.setFocus()
+
+
+class StarHyphenFixWindow(QtWidgets.QWidget):
+    def __init__(self,parent):
+        QtWidgets.QWidget.__init__(self)
+        self.father = parent
+        layout = QtWidgets.QGridLayout(self)
+        layout.setColumnStretch(1,1)
+        self.tabs = QtWidgets.QTabWidget(self)
+        layout.addWidget(QtWidgets.QLabel('<b>Fix starred hyphens</b>'), 0, 0)
+        self.closeButton = QtWidgets.QPushButton('Close')
+        layout.addWidget(self.closeButton, 0, 2)
+        self.frame = QtWidgets.QGridLayout()
+        layout.addLayout(self.frame, 2, 0, 1, 3)
+        self.closeButton.clicked.connect(self.close)
+        self.father.setReadOnly(True)
+
+        nextBut = QtWidgets.QPushButton('Next')
+        nextBut.clicked.connect(self.nextWord)
+        self.frame.addWidget(nextBut,1,0)
+
+        self.noHyphenBut = QtWidgets.QPushButton('')
+        self.noHyphenBut.clicked.connect(self.insertNoHyphen)
+        self.frame.addWidget(self.noHyphenBut,1,1)
+
+        self.hyphenBut = QtWidgets.QPushButton('')
+        self.hyphenBut.clicked.connect(self.insertHyphen)
+        self.frame.addWidget(self.hyphenBut,1,2)
+
+        self.ngramBut = QtWidgets.QPushButton('Probe google ngram')
+        self.ngramBut.clicked.connect(self.getNgram)
+        self.frame.addWidget(self.ngramBut,1,3)
+
+        self.ngramLabel = QtWidgets.QLabel('')
+        self.frame.addWidget(self.ngramLabel,1,4)
+
+        self.currentWord = None
+
+    def nextWord(self):
+        self.ngramLabel.setText('')
+        self.father.search('\w+-\*\w+','f',True,True)
+        word = self.father.textEditor.textCursor().selectedText()
+
+        nohyph = word.replace('-*','')
+        hyph = word.replace('-*','-')
+        self.currentWord = [word,nohyph,hyph]
+
+        wordlist = self.father.getWordList()
+
+        noFreq = wordlist[nohyph]
+        withFreq = wordlist[hyph]
+
+        self.noHyphenBut.setText(f'{nohyph} [{noFreq}]')
+        self.hyphenBut.setText(f'{hyph} [{withFreq}]')
+
+    def getNgram(self):
+        if self.currentWord is None:
+            return
+        sums = getNgrams(f'{self.currentWord[1]}, {self.currentWord[2]}')
+
+        if sums[0] > sums[1]:
+            version = self.currentWord[1]
+            factor = sums[0]/sums[1]
+        else:
+            version = self.currentWord[2]
+            factor = sums[1]/sums[0]
+        self.ngramLabel.setText(f'{version} [{factor:.1f}x]')
+
+
+    def insertNoHyphen(self):
+        if self.currentWord is not None:
+            self.father.insertStr(self.currentWord[1],True)
+        self.nextWord()
+
+    def insertHyphen(self):
+        if self.currentWord is not None:
+            self.father.insertStr(self.currentWord[2],True)
+        self.nextWord()
+        
+
+    def close(self):
+        self.father.setReadOnly(False)
+        self.father.removeInputWindow()
+
 
 
 class CopticInputWindow(wc.CharInputWindow):
