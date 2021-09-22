@@ -39,6 +39,7 @@ import unicodedata as uni
 import HtmlViewer as HtmlV
 import HtmlEditor as HtmlE
 import glyphs
+import distance
 
 
 IMG_TYPES = ('.png','.bmp','.tif','.tiff','.jpg','.jpeg','.pbm','.pgm','.ppm','.xbm','.xpm')
@@ -532,20 +533,30 @@ class WordCountWindow(wc.ToolWindow):
             'Count (Descending)'])
         self.orderType.currentIndexChanged.connect(self.upd)
         self.grid.addWidget(self.orderType,0,1)
+        self.harmonic = QtWidgets.QPushButton('Harmonic')
+        self.grid.addWidget(self.harmonic,0,2)
+        self.harmonic.setEnabled(False)
+        self.harmonic.clicked.connect(self.popupHarmonics)
         self.table = QtWidgets.QTableWidget(1, 2)
         self.table.setHorizontalHeaderLabels(['Word','Count'])
         self.table.verticalHeader().hide()
+        self.table.currentCellChanged.connect(self.selectChanged)
+        self.wordList = None
         self.upd()
         self.grid.addWidget(self.table, 1, 0, 1, 6)
-        self.resize(900, 800)
+        self.resize(1, 800)
         #self.setGeometry(self.frameSize().width() - self.geometry().width(), self.frameSize().height(), 0, 0)
+
+    def selectChanged(self,currentRow, currentColumn, previousRow, previousColumn):
+        # Get text
+        #word = self.table.item(currentRow, 0).text()
+        self.harmonic.setEnabled(True)
 
     def upd(self):
         ordType = self.orderType.currentIndex()
-        #counter = self.father.currentEditor.getCharCount()
-        counter = self.father.currentEditor.getWordList()
-        self.table.setRowCount(len(counter.keys()))
-        keys = counter.keys()
+        self.wordList = self.father.currentEditor.getWordList()
+        self.table.setRowCount(len(self.wordList.keys()))
+        keys = self.wordList.keys()
 
         if ordType == 0 or ordType == 1: #Alphabetical
             lwr = [x.lower() for x in keys]
@@ -558,14 +569,14 @@ class WordCountWindow(wc.ToolWindow):
             if ordType == 1:
                 elements = reversed(elements)
         elif ordType == 2 or ordType == 3: #By count
-            vals = [counter[x] for x in keys]
+            vals = [self.wordList[x] for x in keys]
             elements = [x for _,x in sorted(zip(vals,keys))] #Sort keys by counter values
             if ordType == 3: #By count, inverted
                 elements = reversed(elements)
 
         for pos, val in enumerate(elements):
             word = val
-            count = str(counter[val])
+            count = str(self.wordList[val])
             item1 = QtWidgets.QTableWidgetItem(word)
             item1.setFlags(QtCore.Qt.ItemIsEnabled)
             self.table.setItem(pos, 0, item1)
@@ -576,12 +587,66 @@ class WordCountWindow(wc.ToolWindow):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.resizeColumnsToContents()
 
+    def popupHarmonics(self):
+        word = self.table.item(self.table.currentRow(), 0).text()
+        HarmonicWindow(self,word)
 
     def applyFunc(self):
         self.father.currentEditor.saveCurrent()
         self.upd()
 
+class HarmonicWindow(QtWidgets.QWidget):
+    NAME = 'Harmonics for: '
+    CANCELNAME = 'Close'
+    OKNAME = 'Update'
+    APPLYANDCLOSE = False
+    RESIZABLE = True
 
+    def __init__(self, parent,word):
+        super(HarmonicWindow, self).__init__(parent)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.NAME = self.NAME + word
+        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.Tool)
+        self.father = parent
+        self.setWindowTitle(self.NAME)
+        self.layout = QtWidgets.QGridLayout(self)
+        self.grid = QtWidgets.QGridLayout()
+        self.box = QtWidgets.QDialogButtonBox()
+        self.layout.addLayout(self.grid, 0, 0, 1, 2)
+        self.cancelButton = QtWidgets.QPushButton(self.CANCELNAME)
+        self.cancelButton.clicked.connect(self.closeEvent)
+        self.okButton = QtWidgets.QPushButton(self.OKNAME)
+        #self.okButton.clicked.connect(self.applyAndClose)
+        self.okButton.setFocus()
+        self.box.addButton(self.cancelButton, QtWidgets.QDialogButtonBox.RejectRole)
+        self.box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
+
+        self.table = QtWidgets.QTableWidget(1, 2)
+        self.table.setHorizontalHeaderLabels(['Word','Count'])
+        self.table.verticalHeader().hide()
+        self.grid.addWidget(self.table, 1, 0, 1, 6)
+        self.upd(word)
+        self.show()
+        self.layout.addWidget(self.box, 3, 0)
+        self.resize(100, 600)
+
+    def upd(self,word):
+        first = [x for x in self.father.wordList.keys() if distance.distanceIsOne(word,x)]
+        self.table.setRowCount(len(first))
+
+        for pos, val in enumerate(first):
+            item1 = QtWidgets.QTableWidgetItem(val)
+            item1.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table.setItem(pos, 0, item1)
+            item2 = QtWidgets.QTableWidgetItem(str(self.father.wordList[val]))
+            item2.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table.setItem(pos, 1, item2)
+
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.resizeColumnsToContents()
+
+    def closeEvent(self, *args):
+        self.deleteLater()
 
 
 

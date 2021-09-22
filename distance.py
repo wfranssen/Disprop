@@ -5,6 +5,8 @@ def distanceIsOne(s1,s2):
     Checks if edit distance between s1 and s2 is exactly 1.
     The order of s1 and s2 is not important.
     """
+    if s1 == s2: # distance 0 not allowed
+        return False
     l1 = len(s1)
     l2 = len(s2)
     if l1 < l2: # Make s1 the longest
