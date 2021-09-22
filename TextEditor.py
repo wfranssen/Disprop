@@ -49,11 +49,12 @@ def getNgrams(input, corpus = 26, startYear = 1800, endYear = 1925, smoothing = 
     -------
     List: sum values of the percentage occurring of each word.
     """
-    import requests
-    params = dict(content=input, year_start=startYear, year_end=endYear,
-                  corpus=corpus, smoothing=smoothing)
-    req = requests.get('http://books.google.com/ngrams/graph', params=params)
-    res = re.findall('ngrams.data = (.*?);\\n', req.text)
+    import urllib.request as rq
+
+    suffix = f'?content={input}&year_start={startYear}&year_end={endYear}&corpus={corpus}&smoothing={smoothing}'
+
+    page = rq.urlopen('https://books.google.com/ngrams/graph' + suffix)
+    res = re.findall('ngrams.data = (.*?);\\n', page.read().decode('utf-8'))
     data = [qry['timeseries'] for qry in literal_eval(res[0])]
 
     sums = [0] * len(data)
@@ -882,7 +883,7 @@ class StarHyphenFixWindow(QtWidgets.QWidget):
     def getNgram(self):
         if self.currentWord is None:
             return
-        sums = getNgrams(f'{self.currentWord[1]}, {self.currentWord[2]}')
+        sums = getNgrams(f'{self.currentWord[1]},{self.currentWord[2]}')
 
         if sums[0] > sums[1]:
             version = self.currentWord[1]
