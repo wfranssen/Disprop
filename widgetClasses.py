@@ -34,7 +34,6 @@ class ToolWindow(QtWidgets.QWidget):
     APPLYANDCLOSE = True   # Should the window close after the ok button is pressed
     CANCELNAME = "&Cancel" # The name on the cancel button
     OKNAME = "&Ok"         # The name on the ok button
-    MENUDISABLE = True     # Should the window disable the menu of the main window
 
     def __init__(self, parent):
         """

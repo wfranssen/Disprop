@@ -545,12 +545,12 @@ class WordCountWindow(wc.ToolWindow):
         self.upd()
         self.grid.addWidget(self.table, 1, 0, 1, 6)
         self.resize(1, 800)
-        #self.setGeometry(self.frameSize().width() - self.geometry().width(), self.frameSize().height(), 0, 0)
 
     def selectChanged(self,currentRow, currentColumn, previousRow, previousColumn):
-        # Get text
-        #word = self.table.item(currentRow, 0).text()
-        self.harmonic.setEnabled(True)
+        if self.table.currentRow() is None:
+            self.harmonic.setEnabled(False)
+        else:
+            self.harmonic.setEnabled(True)
 
     def upd(self):
         ordType = self.orderType.currentIndex()
@@ -595,46 +595,52 @@ class WordCountWindow(wc.ToolWindow):
         self.father.currentEditor.saveCurrent()
         self.upd()
 
-class HarmonicWindow(QtWidgets.QWidget):
-    NAME = 'Harmonics for: '
+class HarmonicWindow(wc.ToolWindow):
+    NAME = 'Harmonics'
     CANCELNAME = 'Close'
-    OKNAME = 'Update'
     APPLYANDCLOSE = False
     RESIZABLE = True
+    MENUDISABLE = False
 
     def __init__(self, parent,word):
         super(HarmonicWindow, self).__init__(parent)
+        self.word = word
+        self.okButton.hide()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.NAME = self.NAME + word
-        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.Tool)
-        self.father = parent
-        self.setWindowTitle(self.NAME)
-        self.layout = QtWidgets.QGridLayout(self)
-        self.grid = QtWidgets.QGridLayout()
-        self.box = QtWidgets.QDialogButtonBox()
-        self.layout.addLayout(self.grid, 0, 0, 1, 2)
-        self.cancelButton = QtWidgets.QPushButton(self.CANCELNAME)
-        self.cancelButton.clicked.connect(self.closeEvent)
-        self.okButton = QtWidgets.QPushButton(self.OKNAME)
-        #self.okButton.clicked.connect(self.applyAndClose)
-        self.okButton.setFocus()
-        self.box.addButton(self.cancelButton, QtWidgets.QDialogButtonBox.RejectRole)
-        self.box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
+        self.grid.addWidget(QtWidgets.QLabel(f'<b>Harmonics for: {word}</b>'),0,0,1,2)
 
         self.table = QtWidgets.QTableWidget(1, 2)
         self.table.setHorizontalHeaderLabels(['Word','Count'])
         self.table.verticalHeader().hide()
-        self.grid.addWidget(self.table, 1, 0, 1, 6)
-        self.upd(word)
-        self.show()
-        self.layout.addWidget(self.box, 3, 0)
-        self.resize(100, 600)
+        self.table.currentCellChanged.connect(self.selectChanged)
+        self.grid.addWidget(self.table, 3, 0, 1, 2)
+        self.grid.addWidget(QtWidgets.QLabel('Order:'),2,0)
+        self.harmSpin = QtWidgets.QSpinBox()
+        self.harmSpin.setMinimum(1)
+        self.harmSpin.setMaximum(2)
+        self.harmSpin.valueChanged.connect(self.upd)
+        self.grid.addWidget(self.harmSpin,2,1)
+        self.replacePush = QtWidgets.QPushButton('Replace with')
+        self.replacePush.clicked.connect(self.replace)
+        self.replacePush.setEnabled(False)
+        self.grid.addWidget(self.replacePush,4,0,1,2)
+        self.upd(1)
+        self.resize(200, 600)
 
-    def upd(self,word):
-        first = [x for x in self.father.wordList.keys() if distance.distanceIsOne(word,x)]
-        self.table.setRowCount(len(first))
+    def selectChanged(self):
+        if self.table.currentRow() is None:
+            self.replacePush.setEnabled(False)
+        else:
+            self.replacePush.setEnabled(True)
 
-        for pos, val in enumerate(first):
+    def upd(self,order):
+        if order == 1:
+            harm = [x for x in self.father.wordList.keys() if distance.distanceIsOne(self.word,x)]
+        elif order == 2:
+            harm = [x for x in self.father.wordList.keys() if distance.distanceIsTwo(self.word,x)]
+        self.table.setRowCount(len(harm))
+
+        for pos, val in enumerate(harm):
             item1 = QtWidgets.QTableWidgetItem(val)
             item1.setFlags(QtCore.Qt.ItemIsEnabled)
             self.table.setItem(pos, 0, item1)
@@ -645,9 +651,9 @@ class HarmonicWindow(QtWidgets.QWidget):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.resizeColumnsToContents()
 
-    def closeEvent(self, *args):
-        self.deleteLater()
-
+    def replace(self):
+        word = self.table.item(self.table.currentRow(), 0).text()
+        print(word)
 
 
 class HeaderDelWindow(wc.ToolWindow):
