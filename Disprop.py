@@ -638,6 +638,7 @@ class HarmonicWindow(wc.ToolWindow):
             harm = [x for x in self.father.wordList.keys() if distance.distanceIsOne(self.word,x)]
         elif order == 2:
             harm = [x for x in self.father.wordList.keys() if distance.distanceIsTwo(self.word,x)]
+        harm = [x for x in harm if x is not self.word]
         self.table.setRowCount(len(harm))
 
         for pos, val in enumerate(harm):

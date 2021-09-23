@@ -2,11 +2,9 @@ import itertools as it
 
 def distanceIsOne(s1,s2):
     """
-    Checks if edit distance between s1 and s2 is exactly 1.
+    Checks if edit distance between s1 and s2 is 1 or less.
     The order of s1 and s2 is not important.
     """
-    if s1 == s2: # distance 0 not allowed
-        return False
     l1 = len(s1)
     l2 = len(s2)
     if l1 < l2: # Make s1 the longest
@@ -40,7 +38,7 @@ def distanceIsOne(s1,s2):
 
 def distanceIsTwo(s1,s2):
     """
-    Checks if edit distance between s1 and s2 is exactly 2.
+    Checks if edit distance between s1 and s2 is 2 or less.
     The order of s1 and s2 is not important.
     """
     l1 = len(s1)
@@ -57,8 +55,7 @@ def distanceIsTwo(s1,s2):
             if dist == 3:
                 break
         else: #If no issues, it was good
-            if dist == 2: #Because this function checks equal 2 only.
-                return True
+            return True
         #Otherwise we continue, checking
         #For 1 remove + 1 insert option
         for delpos, addpos in it.product(range(l1),range(l1)):
