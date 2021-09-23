@@ -261,6 +261,9 @@ class multiTextFrame(QtWidgets.QSplitter):
                 else:
                     self.father.dispMsg('TextEdit: Reached file limits')
 
+    def replaceWords(self,start,end):
+        self.runRegexp([[rf'\b{start}\b',end]])
+
     def addMarkup(self,markup,special = None):
         # Markup: len 2 list, start and end insert
         text = self.textEditor.textCursor().selectedText()

@@ -638,7 +638,7 @@ class HarmonicWindow(wc.ToolWindow):
             harm = [x for x in self.father.wordList.keys() if distance.distanceIsOne(self.word,x)]
         elif order == 2:
             harm = [x for x in self.father.wordList.keys() if distance.distanceIsTwo(self.word,x)]
-        harm = [x for x in harm if x is not self.word]
+        harm = [x for x in harm if x != self.word]
         self.table.setRowCount(len(harm))
 
         for pos, val in enumerate(harm):
@@ -653,8 +653,13 @@ class HarmonicWindow(wc.ToolWindow):
         self.table.resizeColumnsToContents()
 
     def replace(self):
-        word = self.table.item(self.table.currentRow(), 0).text()
-        print(word)
+        new = self.table.item(self.table.currentRow(), 0).text()
+        msg = f'Replace "{self.word}" with "{new}"?'
+        run = QtWidgets.QMessageBox.Yes == QtWidgets.QMessageBox.question(self, 'Replace', msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if run:
+            self.father.father.currentEditor.replaceWords(self.word,new)
+            self.father.upd()
+            self.closeEvent()
 
 
 class HeaderDelWindow(wc.ToolWindow):
