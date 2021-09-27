@@ -686,6 +686,22 @@ class QtTextEdit(QtWidgets.QTextEdit):
         #options.setTextDirection(QtCore.Qt.LeftToRight)
         #doc.setDefaultTextOption(options)
 
+    def contextMenuEvent(self, event):
+        """
+        Creates the context menu, with the Connect Parameter option.
+
+        Parameters
+        ----------
+        event : QEvent
+            The event.
+        """
+        menu = self.createStandardContextMenu()
+        act = menu.addAction('Inspect selection', self.inspectSelection)
+        act.setEnabled(False)
+        menu.exec_(event.globalPos())
+
+    def inspectSelection(self, *args):
+        pass
 
     def dropEvent(self, event):
         self.father.dropEvent(event)
