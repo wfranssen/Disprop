@@ -202,7 +202,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
             zmode = QtCore.Qt.FastTransformation
         else:
             zmode = QtCore.Qt.SmoothTransformation
-        width = self.pixmapBackup.width() * self.zoom
+        width = int(self.pixmapBackup.width() * self.zoom)
         Pixmap = self.pixmapBackup.scaledToWidth(width,mode=zmode)
         self.currentPixmapItem.setPixmap(Pixmap)
         self.setSceneRect(QtCore.QRectF(Pixmap.rect()))  # Set scene size to image size.
