@@ -250,8 +250,8 @@ class ImageViewer(QtWidgets.QGraphicsView):
                 newy = oldy*self.currentPixmapItem.pixmap().height()
 
                 # Scroll with these values
-                self.horizontalScrollBar().setValue(newx)
-                self.verticalScrollBar().setValue(newy)
+                self.horizontalScrollBar().setValue(int(newx))
+                self.verticalScrollBar().setValue(int(newy))
                 self.father.zoomDrop.setCurrentIndex(0) # set view type to 'zoom'
                 self.father.zoomLevel.setValue(self.zoom*100)
 
