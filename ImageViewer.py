@@ -283,8 +283,8 @@ class ImageViewer(QtWidgets.QGraphicsView):
             xscroll = oldx * self.currentPixmapItem.pixmap().width() - newx 
             yscroll = oldy * self.currentPixmapItem.pixmap().height() - newy
             # Scroll with these values
-            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + xscroll)
-            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + yscroll)
+            self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() + xscroll))
+            self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() + yscroll))
         else:
             QtWidgets.QGraphicsView.wheelEvent(self, event)
 
